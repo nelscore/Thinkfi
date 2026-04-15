@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ThinkFi — Smart Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+
+<!-- AMBIENTS -->
+<div class="amb amb1"></div>
+<div class="amb amb2"></div>
+<div class="amb amb3"></div>
+<div id="toast-root"></div>
+
+<div id="app">
+
+<!-- ══════════════════════ TOP BAR ══════════════════════ -->
+<header class="topbar">
+  <div class="tb-brand">
+    <div class="hamb" id="hamb" onclick="toggleSB()"><span></span><span></span><span></span></div>
+    <div class="brand-mark">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <linearGradient id="brand-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#28d7ff"/>
+            <stop offset="100%" stop-color="#4a6bff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="url(#brand-grad)"/>
+        <text x="50" y="59" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="43" font-weight="800" fill="#fff">TF</text>
+      </svg>
+    </div>
+    <div class="brand-name">Think<em>Fi</em></div>
+  </div>
+
+  <div class="tb-center">
+    <div class="tb-search">
+      <span class="s-icon">🔍</span>
+      <input type="text" id="srch-in" placeholder="Search transactions, goals..."
+        oninput="doSearch()"
+        onfocus="document.getElementById('srch-res').style.display='block'"
+        onblur="setTimeout(()=>{document.getElementById('srch-res').style.display='none'},200)"
+        autocomplete="off"/>
+      <div class="search-results" id="srch-res"></div>
+    </div>
+    <div class="tb-breadcrumb">
+      <span>ThinkFi</span><span class="bc-sep">›</span><span class="bc-cur" id="bc-page">Home</span>
+    </div>
+  </div>
+
+  <div class="tb-right">
+    <div class="tb-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</div>
+    <div class="tb-btn" id="notif-btn" onclick="toggleNotif()">
+      🔔
+      <span class="tb-notif-badge" id="notif-badge"></span>
+      <div class="notif-dd" id="notif-dd">
+        <div class="notif-hd">Notifications <span class="notif-clear" onclick="clearNotifs()">Mark all read</span></div>
+        <div class="notif-row"><div class="notif-dot-ind"></div><div><div class="notif-row-text">Emergency Fund goal is 62% complete 🎯</div><div class="notif-row-time">2 hours ago</div></div></div>
+        <div class="notif-row"><div class="notif-dot-ind"></div><div><div class="notif-row-text">Monthly expense report ready 📊</div><div class="notif-row-time">Yesterday</div></div></div>
+        <div class="notif-row"><div style="width:8px;height:8px;border-radius:50%;margin-top:3px;flex-shrink:0;"></div><div><div class="notif-row-text">AI tip: Reduce dining costs by 15%</div><div class="notif-row-time">2 days ago</div></div></div>
+      </div>
+    </div>
+    <div class="tb-divider"></div>
+    <div id="auth-area"><button class="tb-login-btn" onclick="openLogin()">🔐 Sign In</button></div>
+  </div>
+</header>
+
+<!-- ══════════════════════ LAYOUT ══════════════════════ -->
+<div class="layout">
+<div class="sb-mask" id="sb-mask" onclick="toggleSB()"></div>
+
+<!-- ──── SIDEBAR ──── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-scroll">
+    <div class="sb-group">
+      <div class="sb-group-label">Main</div>
+      <div class="nav-item active" data-r="home"      onclick="go('home',this)"><span class="ni">🏠</span> Home</div>
+      <div class="nav-item"        data-r="analytics" onclick="go('analytics',this)"><span class="ni">📊</span> Analytics</div>
+      <div class="nav-item"        data-r="goals"     onclick="go('goals',this)"><span class="ni">🎯</span> Goals</div>
+      <div class="nav-item"        data-r="data"      onclick="go('data',this)"><span class="ni">➕</span> Data Input</div>
+      <div class="nav-item"        data-r="budget"    onclick="go('budget',this)"><span class="ni">📋</span> Budget <span class="n-new">NEW</span></div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-group-label">Intelligence</div>
+      <div class="nav-item" onclick="openAI()"><span class="ni">🤖</span> AI Assistant</div>
+      <div class="nav-item" onclick="openHist()"><span class="ni">📜</span> History <span class="n-lock" id="hist-lock">🔒</span></div>
+    </div>
+    <div class="sb-group">
+      <div class="sb-group-label">Account</div>
+      <div class="nav-item" data-r="settings" onclick="go('settings',this)"><span class="ni">⚙️</span> Settings</div>
+      <div class="nav-item" data-r="about"    onclick="go('about',this)"><span class="ni">ℹ️</span> About</div>
+      <div class="nav-item" onclick="openHelp()"><span class="ni">❓</span> Help</div>
+      <div class="nav-item" onclick="doLogout()" id="logout-item" style="display:none;"><span class="ni">🚪</span> Logout</div>
+    </div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user" onclick="openAI()">
+      <div class="sb-av" id="sb-av">G</div>
+      <div class="sb-user-info">
+        <div class="nm" id="sb-nm">Guest User</div>
+        <div class="rl"><span class="status-dot" style="background:var(--amber);display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;"></span><span id="sb-rl">Demo Mode</span></div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ──── MAIN ──── -->
+<main class="main" id="main">
+
+  <!-- DEMO BAR -->
+  <div class="demo-bar" id="demo-bar">
+    <div class="demo-bar-text">⚡ <strong>Demo Mode</strong> — Explore with sample data. Some features are limited.</div>
+    <button class="demo-bar-btn" onclick="openLogin()">Unlock All Features →</button>
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <section class="page active" id="pg-home">
+    <div class="pg-head">
+      <div><div class="pg-title" id="home-title">Good morning</div><div class="pg-sub">Your personal finance command center</div></div>
+      <div class="pg-actions">
+        <button class="btn btn-primary" onclick="go('data',document.querySelector('[data-r=data]'))">＋ Add Transaction</button>
+      </div>
+    </div>
+
+    <div class="home-hero">
+      <div class="home-hero-copy">
+        <div class="hero-eyebrow">Dashboard</div>
+        <div class="hero-heading">Financial analytics built for confident decisions.</div>
+        <div class="hero-text">A clean executive view with top metrics, spend trends, and runway insights in one place.</div>
+      </div>
+      <div class="home-hero-panel home-hero-summary">
+        <div class="summary-card">
+          <div class="summary-label">Total balance</div>
+          <div class="summary-value" id="hero-net">₹0</div>
+          <div class="summary-note">Current cash and savings combined.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Savings rate</div>
+          <div class="summary-value" id="hero-rate">0%</div>
+          <div class="summary-note">Income retained after expenses.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Projected income</div>
+          <div class="summary-value" id="hero-inc">₹0</div>
+          <div class="summary-note">Expected inflows this month.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">This month spend</div>
+          <div class="summary-value" id="hero-exp">₹0</div>
+          <div class="summary-note">Current expenses rolled up.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Health Score -->
+    <div class="health-score-card">
+      <div class="health-ring-wrap">
+        <div class="ring-wrap" style="width:90px;height:90px;">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="ring-bg"   cx="45" cy="45" r="38" stroke-width="8"/>
+            <circle class="ring-fill" cx="45" cy="45" r="38" stroke-width="8" id="health-ring"
+              stroke="var(--c1)" stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
+          </svg>
+          <div class="ring-label">
+            <div class="ring-pct" id="health-pct" style="color:var(--c1);">--</div>
+            <div class="ring-sub">score</div>
+          </div>
+        </div>
+      </div>
+      <div class="health-score-info">
+        <div class="hs-label">Financial Health Score</div>
+        <div class="hs-score" id="health-num">--/100</div>
+        <div class="hs-status" id="health-status">Loading…</div>
+        <div class="hs-tips" id="health-tips"></div>
+      </div>
+    </div>
+
+    <!-- 4 Stat Cards -->
+    <div class="g4">
+      <div class="card" style="border-color:rgba(0,212,255,0.18);">
+        <div class="card-shine"></div>
+        <div class="card-glow-dot" style="background:radial-gradient(circle,rgba(0,212,255,0.15),transparent);"></div>
+        <div class="cl">💰 Net Balance</div>
+        <div class="cv c1" id="s-net">₹0</div>
+        <div class="cd"><span class="up">↑ Real-time</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(0,232,150,0.15);">
+        <div class="card-shine"></div>
+        <div class="card-glow-dot" style="background:radial-gradient(circle,rgba(0,232,150,0.1),transparent);"></div>
+        <div class="cl">📥 Total Income</div>
+        <div class="cv green" id="s-inc">₹0</div>
+        <div class="cd"><span class="up">All time</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,77,109,0.13);">
+        <div class="card-shine"></div>
+        <div class="card-glow-dot" style="background:radial-gradient(circle,rgba(255,77,109,0.09),transparent);"></div>
+        <div class="cl">📤 Total Expenses</div>
+        <div class="cv red" id="s-exp">₹0</div>
+        <div class="cd"><span class="dn">All time</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,184,0,0.13);">
+        <div class="card-shine"></div>
+        <div class="card-glow-dot" style="background:radial-gradient(circle,rgba(255,184,0,0.08),transparent);"></div>
+        <div class="cl">🏦 Savings Rate</div>
+        <div class="cv amber" id="s-rate">0%</div>
+        <div class="cd">Auto-calculated</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="sc">
+        <div class="sc-hd">
+          <div class="sc-title"><span class="sc-ic">🕐</span> Recent Transactions</div>
+          <span class="sc-action" onclick="go('data',document.querySelector('[data-r=data]'))">View all →</span>
+        </div>
+        <div id="home-recent"></div>
+      </div>
+
+      <div>
+        <div class="sc" style="margin-bottom:14px;">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📊</span> Spending This Month</div></div>
+          <div id="home-spend-meter"></div>
+        </div>
+        <div class="sc">
+          <div class="sc-hd">
+            <div class="sc-title"><span class="sc-ic">🎯</span> Goal Progress</div>
+            <span class="sc-action" onclick="go('goals',document.querySelector('[data-r=goals]'))">All goals →</span>
+          </div>
+          <div id="home-goals"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Insights (locked in demo mode) -->
+    <div class="blur-wrap locked" id="home-ai-wrap">
+      <div class="blur-inner">
+        <div class="sc">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">🤖</span> AI Insights</div><span class="sc-action" onclick="openAI()">Ask AI →</span></div>
+          <div id="home-ai-txt" style="font-size:13px;color:var(--text1);line-height:1.8;">
+            💡 Your housing expense (38%) is within the recommended 30–40% range.<br><br>
+            📉 Food & dining expenses increased 12% this month. Meal prepping could save ₹3,000–5,000/month.<br><br>
+            🎯 At your current savings rate, you'll hit your Emergency Fund goal in approximately 4 months.
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:14px;" onclick="openAI()">Open AI Assistant →</button>
+        </div>
+      </div>
+      <div class="lock-veil" onclick="openLogin()">
+        <div class="lk-icon">🔒</div>
+        <div class="lk-msg">Sign in to unlock AI Insights</div>
+        <button class="lk-btn" onclick="openLogin()">Sign In Free</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ANALYTICS ══ -->
+  <section class="page" id="pg-analytics">
+    <div class="pg-head">
+      <div><div class="pg-title">Analytics</div><div class="pg-sub">Deep dive into your financial data</div></div>
+      <div class="pg-actions">
+        <select id="an-period" onchange="refreshAnalytics()"
+          style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 14px;color:var(--text0);font-size:12px;font-weight:600;outline:none;">
+          <option value="all">All Time</option>
+          <option value="month">This Month</option>
+          <option value="q">Last 3 Months</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="g3" style="margin-bottom:16px;">
+      <div class="card"><div class="cl">📥 Total Income</div><div class="cv green" id="an-inc">₹0</div></div>
+      <div class="card"><div class="cl">📤 Total Expenses</div><div class="cv red" id="an-exp">₹0</div></div>
+      <div class="card"><div class="cl">� Net Savings</div><div class="cv c1" id="an-sav">₹0</div></div>
+    </div>
+
+    <div class="g2">
+      <div class="sc">
+        <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📈</span> Monthly Cash Flow</div></div>
+        <div class="chart-box" style="height:230px;"><canvas id="trend-ch"></canvas></div>
+      </div>
+      <div class="sc">
+        <div class="sc-hd"><div class="sc-title"><span class="sc-ic">🥧</span> Expense by Category</div></div>
+        <div class="chart-box" style="height:230px;display:flex;align-items:center;justify-content:center;">
+          <canvas id="pie-ch" style="max-height:215px;max-width:215px;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="blur-wrap locked" id="an-blur">
+      <div class="blur-inner">
+        <div class="sc">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📋</span> Category Breakdown</div></div>
+          <div id="an-cat-list"></div>
+        </div>
+        <div class="sc">
+          <div class="sc-hd">
+            <div class="sc-title"><span class="sc-ic">📋</span> All Transactions</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="tx-search" placeholder="Filter…" oninput="filterTx()"
+                style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xs);padding:5px 10px;color:var(--text0);font-size:12px;outline:none;width:160px;"/>
+              <select id="tx-cat-filter" onchange="filterTx()"
+                style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xs);padding:5px 10px;color:var(--text0);font-size:12px;outline:none;">
+                <option value="">All categories</option>
+                <option value="salary">Salary</option><option value="freelance">Freelance</option>
+                <option value="food">Food</option><option value="housing">Housing</option>
+                <option value="transport">Transport</option><option value="health">Health</option>
+                <option value="entertainment">Entertainment</option><option value="shopping">Shopping</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Description</th><th>Category</th><th>Type</th><th>Date</th><th style="text-align:right;">Amount</th><th>Actions</th></tr></thead>
+              <tbody id="an-tx-body"></tbody>
+            </table>
+            <div id="an-tx-empty" style="display:none;padding:30px;text-align:center;">
+              <div style="font-size:28px;">📭</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:8px;">No transactions match your filter</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lock-veil" onclick="openLogin()">
+        <div class="lk-icon">🔒</div><div class="lk-msg">Sign in for full analytics</div>
+        <button class="lk-btn" onclick="openLogin()">Unlock Analytics</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ GOALS ══ -->
+  <section class="page" id="pg-goals">
+    <div class="pg-head">
+      <div><div class="pg-title">My Goals 🎯</div><div class="pg-sub">Track Your Dreams</div></div>
+      <div class="pg-actions"><button class="btn btn-primary" onclick="openGoalPP()">＋ New Goal</button></div>
+    </div>
+    
+    <!-- Goals Dashboard -->
+    <div id="goals-wrap">
+      <!-- Empty State -->
+      <div id="goals-empty" style="display:none;text-align:center;padding:120px 40px;">
+        <div style="font-size:64px;margin-bottom:16px;opacity:0.8;">🎯</div>
+        <div style="font-size:24px;font-weight:700;margin:12px 0;color:var(--text1);">Track Your Dreams</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Set savings goals, track monthly progress, and watch your financial targets become reality.</div>
+        <button class="btn btn-primary btn-lg" onclick="openGoalPP()">+ Create Your First Goal</button>
+      </div>
+
+      <!-- Dashboard (when goals exist) -->
+      <div id="goals-dashboard" style="display:none;">
+        <!-- Summary Section -->
+        <div style="margin-bottom:32px;">
+          <div class="g4" style="gap:16px;">
+            <div class="goals-metric-card">
+              <div class="goals-metric-icon">🎯</div>
+              <div class="goals-metric-label">Active Goals</div>
+              <div class="goals-metric-value" id="goals-active-count">0</div>
+            </div>
+            <div class="goals-metric-card">
+              <div class="goals-metric-icon">🏆</div>
+              <div class="goals-metric-label">Achieved</div>
+              <div class="goals-metric-value" id="goals-achieved-count">0</div>
+            </div>
+            <div class="goals-metric-card">
+              <div class="goals-metric-icon">💰</div>
+              <div class="goals-metric-label">Total Saved</div>
+              <div class="goals-metric-value" id="goals-total-saved">₹0</div>
+            </div>
+            <div class="goals-metric-card">
+              <div class="goals-metric-icon">📊</div>
+              <div class="goals-metric-label">Monthly Target</div>
+              <div class="goals-metric-value" id="goals-monthly-target">₹0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Goals Section -->
+        <div style="margin-top:48px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+            <div style="font-size:20px;">📋</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text1);">Active Goals</div>
+            <div style="background:rgba(0,212,255,0.1);border-radius:999px;padding:4px 12px;font-size:11px;color:var(--c1);font-weight:600;margin-left:auto;">UPDATED TODAY</div>
+          </div>
+          <div id="goals-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;"></div>
+          <div id="goals-no-active" style="text-align:center;padding:80px 40px;display:none;background:linear-gradient(135deg,rgba(0,212,255,0.03),rgba(74,107,255,0.03));border-radius:var(--r);border:1px solid rgba(0,212,255,0.08);">
+            <div style="font-size:56px;margin-bottom:16px;opacity:0.5;filter:drop-shadow(0 4px 12px rgba(0,212,255,0.2));">✨</div>
+            <div style="font-size:16px;color:var(--text2);font-weight:600;">No active goals yet</div>
+            <div style="font-size:13px;color:var(--text2);margin-top:8px;">Create your first goal using the button above.</div>
+          </div>
+        </div>
+
+        <!-- Goals Insights Section -->
+        <div id="goals-insights-section" style="margin-top:48px;display:none;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+            <div style="font-size:20px;">💡</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text1);">Smart Insights</div>
+          </div>
+          <div id="goals-insights" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+        </div>
+
+        <!-- Achieved Section -->
+        <div id="achieved-section" style="margin-top:40px;display:none;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <div style="font-size:18px;">🏆</div>
+            <div style="font-size:18px;font-weight:700;color:var(--text1);">Achieved Goals</div>
+          </div>
+          <div id="goals-achieved" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DATA INPUT ══ -->
+  <section class="page" id="pg-data">
+    <div class="pg-head"><div><div class="pg-title">Data Input ➕</div><div class="pg-sub">Record income and expenses</div></div></div>
+    <div class="g2">
+      <div>
+        <div class="sc">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📝</span> New Transaction</div></div>
+          <div class="type-tog" style="margin-bottom:16px;">
+            <div class="tt-opt income on" id="tt-inc" onclick="setType('income')">↓ Income</div>
+            <div class="tt-opt expense"   id="tt-exp" onclick="setType('expense')">↑ Expense</div>
+          </div>
+          <div class="ff">
+            <label>Amount (₹) <span style="color:var(--red);">*</span></label>
+            <input type="number" id="tx-amt" placeholder="0.00" min="0"/>
+            <div class="ff-error" id="e-amt">Amount must be greater than 0</div>
+          </div>
+          <div class="ff-row">
+            <div class="ff">
+              <label id="tx-src-lbl">Source *</label>
+              <select id="tx-cat"><option value="">Select…</option></select>
+              <div class="ff-error" id="e-cat">Required</div>
+            </div>
+            <div class="ff">
+              <label>Date *</label>
+              <input type="date" id="tx-dt"/>
+              <div class="ff-error" id="e-dt">Required</div>
+            </div>
+          </div>
+          <div class="ff">
+            <label>Note <span style="color:var(--text2);">(optional)</span></label>
+            <textarea id="tx-note" placeholder="Add a description…" rows="2"></textarea>
+          </div>
+          <button class="btn btn-primary btn-full" id="save-tx-btn" onclick="saveTx()">💾 Save Transaction</button>
+          <button class="btn btn-ghost btn-full" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none;margin-top:8px;">✕ Cancel Edit</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="sc" style="margin-bottom:14px;">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📈</span> Quick Stats</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px;">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Total Entries</div>
+              <div class="mono" style="font-size:22px;font-weight:700;" id="qs-tot">0</div>
+            </div>
+            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px;">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">This Month</div>
+              <div class="mono" style="font-size:22px;font-weight:700;" id="qs-mo">0</div>
+            </div>
+            <div style="background:var(--green-dim);border:1px solid rgba(0,232,150,0.2);border-radius:var(--r-sm);padding:13px;">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Total Income</div>
+              <div class="mono" style="font-size:16px;font-weight:700;color:var(--green);" id="qs-inc">₹0</div>
+            </div>
+            <div style="background:var(--red-dim);border:1px solid rgba(255,77,109,0.2);border-radius:var(--r-sm);padding:13px;">
+              <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Total Expenses</div>
+              <div class="mono" style="font-size:16px;font-weight:700;color:var(--red);" id="qs-exp">₹0</div>
+            </div>
+          </div>
+        </div>
+        <div class="sc">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">🕐</span> Last 5 Entries</div></div>
+          <div id="data-recent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ BUDGET ══ -->
+  <section class="page" id="pg-budget">
+    <div class="pg-head">
+      <div><div class="pg-title">Budget Planner 📋</div><div class="pg-sub">Set limits, track spending by category</div></div>
+    </div>
+    <div class="g2">
+      <div class="sc">
+        <div class="sc-hd"><div class="sc-title"><span class="sc-ic">📊</span> Category Spending</div></div>
+        <div id="budget-cats"></div>
+        <div class="chart-box" style="height:200px;margin-top:16px;"><canvas id="budget-bar-ch"></canvas></div>
+      </div>
+      <div>
+        <div class="sc" style="margin-bottom:14px;">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">🎯</span> Monthly Budget Limits</div></div>
+          <div id="budget-limits-ui"></div>
+          <div style="margin-top:14px;padding:12px;background:var(--surface);border-radius:var(--r-sm);">
+            <div style="font-size:12px;font-weight:600;margin-bottom:8px;">Set a limit for a category:</div>
+            <div style="display:flex;gap:8px;">
+              <select id="bl-cat" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xs);padding:7px 10px;color:var(--text0);font-size:12px;outline:none;">
+                <option value="">Select category</option>
+                <option value="food">🍔 Food</option><option value="housing">🏠 Housing</option>
+                <option value="transport">🚗 Transport</option><option value="health">💊 Health</option>
+                <option value="entertainment">🎮 Entertainment</option><option value="shopping">🛒 Shopping</option>
+              </select>
+              <input type="number" id="bl-amt" placeholder="₹ limit"
+                style="width:90px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-xs);padding:7px 10px;color:var(--text0);font-size:12px;outline:none;"/>
+              <button class="btn btn-outline btn-sm" onclick="setBudgetLimit()">Set</button>
+            </div>
+          </div>
+        </div>
+        <div class="sc">
+          <div class="sc-hd"><div class="sc-title"><span class="sc-ic">💡</span> Recommendations</div></div>
+          <div id="budget-recs"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SETTINGS ══ -->
+  <section class="page" id="pg-settings">
+    <div class="pg-head"><div><div class="pg-title">Settings ⚙️</div><div class="pg-sub">Manage your preferences and account</div></div></div>
+    <div class="set-group">
+      <div class="set-group-hd">👤 Profile</div>
+      <div style="padding:20px;">
+        <div class="ff-row">
+          <div class="ff"><label>Display Name</label><input type="text" id="pf-name" placeholder="Your name"/></div>
+          <div class="ff"><label>Email / Phone</label><input type="text" id="pf-email" placeholder="you@example.com"/></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="savePrefs()">Save Profile</button>
+      </div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-hd">🎨 Appearance</div>
+      <div class="set-row">
+        <div class="set-row-l"><div class="sl">Dark Theme</div><div class="sh">Toggle between dark and light mode</div></div>
+        <label class="toggle"><input type="checkbox" id="theme-toggle" checked onchange="toggleTheme()"/><span class="toggle-tr"></span></label>
+      </div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-hd">🔔 Notifications</div>
+      <div class="set-row"><div class="set-row-l"><div class="sl">Goal Reminders</div><div class="sh">Milestone alerts for your goals</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-tr"></span></label></div>
+      <div class="set-row"><div class="set-row-l"><div class="sl">Budget Alerts</div><div class="sh">Alert when you're 80% of limit</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-tr"></span></label></div>
+      <div class="set-row"><div class="set-row-l"><div class="sl">Monthly Report</div><div class="sh">Summary of your monthly finances</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-tr"></span></label></div>
+    </div>
+    <div class="set-group">
+      <div class="set-group-hd" style="color:var(--red);">⚠️ Data Management</div>
+      <div style="padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-danger btn-sm"  onclick="clearAll()">🗑️ Clear All Data</button>
+        <button class="btn btn-ghost btn-sm"   onclick="exportJSON()">📥 Export JSON</button>
+        <button class="btn btn-ghost btn-sm"   onclick="loadDemo()">🔄 Load Demo Data</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ABOUT ══ -->
+  <section class="page" id="pg-about">
+    <div class="pg-head"><div><div class="pg-title">About ThinkFi ℹ️</div></div></div>
+    <div class="about-hero">
+      <div style="font-size:52px;margin-bottom:12px;">💡</div>
+      <div style="font-size:30px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;">ThinkFi</div>
+      <div style="font-size:13px;color:var(--c1);font-family:'JetBrains Mono',monospace;margin-bottom:10px;">v3.0 — AI Financial Intelligence</div>
+      <div style="font-size:14px;color:var(--text1);max-width:520px;margin:0 auto;line-height:1.7;">
+        A full-stack AI-powered personal finance dashboard. Powered by Express + REST API on the backend,
+        with a secure Claude AI proxy, real CRUD, and persistent data storage.
+      </div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-ic">🤖</div><div class="feat-name">Claude AI</div><div class="feat-desc">Personalized advice via secure server-side proxy</div></div>
+      <div class="feat-card"><div class="feat-ic">🔌</div><div class="feat-name">REST API</div><div class="feat-desc">Express backend with full CRUD endpoints</div></div>
+      <div class="feat-card"><div class="feat-ic">📊</div><div class="feat-name">Smart Analytics</div><div class="feat-desc">Visual charts and spending breakdown</div></div>
+      <div class="feat-card"><div class="feat-ic">🎯</div><div class="feat-name">Goal Tracking</div><div class="feat-desc">Set targets and monitor savings progress</div></div>
+      <div class="feat-card"><div class="feat-ic">📋</div><div class="feat-name">Budget Planner</div><div class="feat-desc">Category limits and overspend alerts</div></div>
+      <div class="feat-card"><div class="feat-ic">🔒</div><div class="feat-name">Secure by Design</div><div class="feat-desc">API keys stay server-side, rate limiting built-in</div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ──── RIGHT PANEL TRIGGER ──── -->
+<div class="rp-trigger" id="rp-trigger" onclick="toggleRP()" aria-label="Open right panel"></div>
+
+<!-- ──── RIGHT PANEL ──── -->
+<aside class="rp" id="rp">
+  <button class="rp-close" onclick="toggleRP()" aria-label="Close right panel">✕</button>
+  <div class="rp-tabs">
+    <div class="rp-tab on" id="rpt-ai"   onclick="rpTab('ai')">🤖 AI</div>
+    <div class="rp-tab"    id="rpt-hist" onclick="rpTab('hist')">📜 History</div>
+    <div class="rp-tab"    id="rpt-stats"onclick="rpTab('stats')">📊 Stats</div>
+  </div>
+  <div class="rp-body" id="rpb-ai">
+    <div class="rp-sec">
+      <div class="rp-sec-title">Financial Overview</div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Net Balance</div><div class="rp-mini-val" id="rp-net"  style="color:var(--c1);">₹0</div></div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Savings Rate</div><div class="rp-mini-val" id="rp-rate" style="color:var(--green);">0%</div></div>
+    </div>
+    <div class="rp-sec">
+      <div class="rp-sec-title">AI Insight</div>
+      <div class="rp-ai-card">
+        <div class="rp-ai-msg" id="rp-ai-msg">💡 Add transactions to get personalized AI insights.</div>
+        <button class="rp-ai-trigger" onclick="openAI()">Ask AI Assistant →</button>
+      </div>
+    </div>
+    <div class="rp-sec">
+      <div class="rp-sec-title">Active Goals</div>
+      <div id="rp-goals"></div>
+    </div>
+    <div class="rp-cta" id="rp-cta">
+      <div class="rp-cta-title">🚀 Unlock Full Power</div>
+      <div class="rp-cta-sub">Sign in to save permanently and unlock all features.</div>
+      <button class="btn btn-primary btn-full btn-sm" onclick="openLogin()">Sign In Free →</button>
+    </div>
+  </div>
+  <div class="rp-body" id="rpb-hist" style="display:none;">
+    <div class="rp-sec">
+      <div class="rp-sec-title">Recent Activity</div>
+      <div id="rp-hist-list"><div style="font-size:12px;color:var(--text2);text-align:center;padding:24px;">No activity yet.</div></div>
+    </div>
+  </div>
+  <div class="rp-body" id="rpb-stats" style="display:none;">
+    <div class="rp-sec">
+      <div class="rp-sec-title">Monthly Stats</div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Burn Rate</div><div class="rp-mini-val" id="rp-burn"    style="color:var(--red);">₹0</div></div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Avg Daily Spend</div><div class="rp-mini-val" id="rp-daily">₹0</div></div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Runway</div><div class="rp-mini-val" id="rp-runway"   style="color:var(--purple);">∞ mo</div></div>
+      <div class="rp-mini-card"><div class="rp-mini-lbl">Goals Active</div><div class="rp-mini-val" id="rp-goals-ct" style="color:var(--amber);">0</div></div>
+    </div>
+    <div class="rp-sec">
+      <div class="rp-sec-title">Income Sources</div>
+      <div id="rp-sources"></div>
+    </div>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <div class="bn-items">
+    <div class="bn-item active" data-r="home"      onclick="go('home',this)"><span class="bn-ic">🏠</span><span class="bn-lb">Home</span></div>
+    <div class="bn-item"        data-r="analytics" onclick="go('analytics',this)"><span class="bn-ic">📊</span><span class="bn-lb">Analytics</span></div>
+    <div class="bn-item"        onclick="openAI()"><span class="bn-ic">🤖</span><span class="bn-lb">AI</span></div>
+    <div class="bn-item"        data-r="goals"     onclick="go('goals',this)"><span class="bn-ic">🎯</span><span class="bn-lb">Goals</span></div>
+    <div class="bn-item"        data-r="data"      onclick="go('data',this)"><span class="bn-ic">➕</span><span class="bn-lb">Add</span></div>
+  </div>
+</nav>
+
+</div><!-- /app -->
+
+<!-- ══════════════════════ POPUPS ══════════════════════ -->
+
+<!-- LOGIN -->
+<div class="overlay" id="ov-login">
+  <div class="popup" style="max-width:420px;">
+    <button class="pp-close" onclick="closeLogin()">✕</button>
+    <div id="ls1">
+      <div style="text-align:center;margin-bottom:20px;"><div style="font-size:40px;margin-bottom:10px;">🔐</div><div class="pp-title">Welcome to ThinkFi</div><div class="pp-sub" style="margin-bottom:0;">Sign in to unlock all features</div></div>
+      <div class="login-methods">
+        <button class="lm-btn on" id="lm-email" onclick="setLM('email')">📧 Email</button>
+        <button class="lm-btn" id="lm-phone" onclick="setLM('phone')">📱 Phone</button>
+      </div>
+      <div class="ff"><label id="lf-lbl">Email Address</label><input type="text" id="lf-in" placeholder="you@example.com"/></div>
+      <div class="ff"><label>Your Name <span style="color:var(--text2);">(optional)</span></label><input type="text" id="lf-nm" placeholder="What should we call you?"/></div>
+      <button class="btn btn-primary btn-full" onclick="sendOTP()">Send Verification Code →</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text2);">No password needed · OTP verification</div>
+    </div>
+    <div id="ls2" style="display:none;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:36px;margin-bottom:8px;">📨</div>
+        <div class="pp-title">Check your inbox</div>
+        <div class="pp-sub" style="margin-bottom:0;">We sent a 6-digit code to <span id="otp-to" style="color:var(--c1);font-weight:700;"></span></div>
+      </div>
+      <!-- Real 6-digit OTP inputs -->
+      <div class="otp-grid" style="grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;">
+        <input class="otp-in" maxlength="1" id="o0" oninput="onOTP(0)" onkeydown="onOTPBack(event,0)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="o1" oninput="onOTP(1)" onkeydown="onOTPBack(event,1)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="o2" oninput="onOTP(2)" onkeydown="onOTPBack(event,2)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="o3" oninput="onOTP(3)" onkeydown="onOTPBack(event,3)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="o4" oninput="onOTP(4)" onkeydown="onOTPBack(event,4)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="o5" oninput="onOTP(5)" onkeydown="onOTPBack(event,5)" type="text" inputmode="numeric" pattern="[0-9]"/>
+      </div>
+      <div id="otp-error" style="display:none;color:var(--red);font-size:12px;text-align:center;margin-bottom:10px;"></div>
+      <button class="btn btn-primary btn-full" id="verify-btn" onclick="verifyOTP()">Verify & Sign In →</button>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="ls(1)">← Back</button>
+        <button class="btn btn-ghost btn-sm" id="resend-btn" onclick="resendOTP()">Resend code</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text2);">Code expires in 10 minutes</div>
+    </div>
+    <div id="ls3" style="display:none;">
+      <div class="congrats-wrap">
+        <span class="cg-emoji">🎉</span>
+        <div class="cg-title">You're all set!</div>
+        <div class="cg-sub">Full access unlocked. Welcome to ThinkFi!</div>
+        <div class="unlock-chips">
+          <span class="uc">✅ Save Data</span><span class="uc">✅ Full AI</span>
+          <span class="uc">✅ Analytics</span><span class="uc">✅ History</span><span class="uc">✅ Export</span>
+        </div>
+        <button class="btn btn-primary" onclick="finishLogin()" style="width:200px;">Start Using ThinkFi →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI -->
+<div class="overlay" id="ov-ai">
+  <div class="popup" style="max-width:700px;max-height:88vh;display:flex;flex-direction:column;padding:22px;">
+    <button class="pp-close" onclick="closeAI()">✕</button>
+    <div class="ai-hd">
+      <div class="ai-hd-badge">🤖</div>
+      <div>
+        <div style="font-size:16px;font-weight:800;">ThinkFi AI Assistant</div>
+        <div style="font-size:11px;color:var(--text2);">Powered by Claude · Secure server-side proxy</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px;">
+        <span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;"></span>
+        <span style="font-size:11px;color:var(--green);font-weight:600;">Online</span>
+      </div>
+    </div>
+    <div id="ai-demo-warn" class="ai-demo-warn" style="display:none;">
+      ⚡ Demo: <strong>2 free questions.</strong>&nbsp;<span style="cursor:pointer;text-decoration:underline;" onclick="closeAI();openLogin()">Sign in for unlimited.</span>
+    </div>
+    <div class="ai-msgs" id="ai-msgs">
+      <div class="ai-m bot"><div class="ai-bubble">👋 Hi! I'm your ThinkFi AI. I can analyze your spending, suggest budgets, review your goals, and give personalized financial advice. What would you like to know?</div></div>
+    </div>
+    <div class="ai-qp">
+      <button class="ai-qp-btn" onclick="aiSend('Analyze my spending and give 3 tips')">📊 Spending analysis</button>
+      <button class="ai-qp-btn" onclick="aiSend('How can I save more money this month?')">💰 Save more</button>
+      <button class="ai-qp-btn" onclick="aiSend('Am I on track with my financial goals?')">🎯 Review goals</button>
+      <button class="ai-qp-btn" onclick="aiSend('Create a monthly budget plan for me')">📋 Budget plan</button>
+      <button class="ai-qp-btn" onclick="aiSend('What is my financial health score and how to improve it?')">💯 Health score</button>
+    </div>
+    <div class="ai-inp-row">
+      <input type="text" id="ai-in" placeholder="Ask anything about your finances…" onkeydown="if(event.key==='Enter')aiSend()"/>
+      <button class="btn btn-primary" onclick="aiSend()">Send ↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="overlay" id="ov-hist">
+  <div class="popup" style="max-width:560px;max-height:84vh;display:flex;flex-direction:column;">
+    <button class="pp-close" onclick="closeHist()">✕</button>
+    <div class="pp-title">📜 Activity History</div>
+    <div class="pp-sub" style="margin-bottom:0;">All your recorded actions</div>
+    <div class="hist-list" id="hist-inner"></div>
+  </div>
+</div>
+
+<!-- GOAL -->
+<div class="overlay" id="ov-goal">
+  <div class="popup" style="max-width:920px;">
+    <button class="pp-close" onclick="closeGoalPP()">✕</button>
+    <div class="pp-title">🎯 SMART Goal Builder</div>
+    <div class="pp-sub">Build a savings plan with pace, timeline, and coaching.</div>
+    <div class="goal-modal-grid">
+      <div class="goal-modal-form">
+        <div class="ff"><label>Goal Name *</label><input type="text" id="g-nm" placeholder="Emergency Fund, Travel, New Laptop" oninput="updateGoalPreview()"/><div class="ff-error" id="ge-nm">Goal name is required</div></div>
+        <div class="ff-row">
+          <div class="ff"><label>Target Amount (₹) *</label><input type="number" id="g-tgt" placeholder="100000" min="1" oninput="updateGoalPreview()"/><div class="ff-error" id="ge-tgt">Enter a valid amount</div></div>
+          <div class="ff"><label>Already Saved (₹)</label><input type="number" id="g-sav" placeholder="0" min="0" oninput="updateGoalPreview()"/></div>
+        </div>
+        <div class="ff-row">
+          <div class="ff"><label>Start Date</label><input type="date" id="g-start" oninput="updateGoalPreview()"/></div>
+          <div class="ff"><label>Target Date <span style="color:var(--text2);">(optional)</span></label><input type="date" id="g-dl" oninput="updateGoalPreview()"/><div class="ff-hint">Optional end date for finer forecasting</div></div>
+        </div>
+        <div class="ff-row">
+          <div class="ff"><label>Priority</label><select id="g-priority" onchange="updateGoalPreview()"><option value="low">Low stress</option><option value="medium" selected>Balanced</option><option value="high">High urgency</option></select></div>
+          <div class="ff"><label>Monthly income</label><input type="number" id="g-income" placeholder="e.g. 65000" min="0" oninput="updateGoalPreview()"/><div class="ff-hint">Optional — helps personalize your pace</div></div>
+        </div>
+        <div class="ff">
+          <label>Risk mode</label>
+          <div class="goal-pill-group">
+            <div class="goal-pill active" data-mode="safe" onclick="setGoalRisk('safe')">Safe</div>
+            <div class="goal-pill" data-mode="balanced" onclick="setGoalRisk('balanced')">Balanced</div>
+            <div class="goal-pill" data-mode="aggressive" onclick="setGoalRisk('aggressive')">Aggressive</div>
+          </div>
+          <input type="hidden" id="g-risk" value="balanced"/>
+        </div>
+        <button class="btn btn-primary btn-full" id="g-save-btn" onclick="saveGoal()">Create Goal →</button>
+      </div>
+      <div class="goal-modal-preview">
+        <div class="goal-preview-header">
+          <div class="goal-preview-tag" id="goal-preview-tag">Fill the form to build a goal.</div>
+          <div class="goal-preview-copy" id="goal-preview-copy">Your plan appears live as you enter details.</div>
+        </div>
+        <div class="goal-preview-metrics">
+          <div class="goal-preview-metric"><div class="metric-label">Monthly</div><div class="metric-value" id="goal-preview-monthly">₹0</div></div>
+          <div class="goal-preview-metric"><div class="metric-label">Weekly</div><div class="metric-value" id="goal-preview-weekly">₹0</div></div>
+          <div class="goal-preview-metric"><div class="metric-label">Daily</div><div class="metric-value" id="goal-preview-daily">₹0</div></div>
+        </div>
+        <div class="goal-plan-grid" id="goal-plan-cards"></div>
+        <div class="goal-preview-insight" id="goal-preview-insight">Your coach will summarize pace and next actions here.</div>
+        <div class="goal-sim-row">
+          <div class="goal-sim-label">
+            <strong>What if you save more?</strong>
+            <span id="goal-sim-hint">Move the slider to see finish date impact.</span>
+          </div>
+          <input type="range" id="g-extra" min="0" max="50000" step="500" value="0" oninput="updateGoalPreview()"/>
+          <div class="goal-sim-output" id="goal-sim-output">Add ₹0 / month → finish on the current schedule.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="ov-help">
+  <div class="popup" style="max-width:500px;">
+    <button class="pp-close" onclick="closeHelp()">✕</button>
+    <div class="pp-title">❓ Quick Help Guide</div>
+    <div class="pp-sub" style="margin-bottom:16px;">Get started with ThinkFi in 4 easy steps</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 15px;"><strong>1. ➕ Data Input</strong> — Log income and expenses with category, date, and notes.</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 15px;"><strong>2. 📊 Analytics</strong> — View charts, spending breakdown, and all transactions.</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 15px;"><strong>3. 🎯 Goals</strong> — Set savings targets with deadlines and track progress.</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 15px;"><strong>4. 🤖 AI Assistant</strong> — Ask anything — powered by Claude via a secure server proxy.</div>
+      <div style="background:var(--c1dim);border:1px solid rgba(0,212,255,0.25);border-radius:var(--r-sm);padding:13px 15px;color:var(--c1);"><strong>💡 Pro tip:</strong> Run <code>npm run dev</code> to start the server, then open <code>localhost:3000</code>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SCRIPTS ══════════════════════ -->
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- App scripts — order matters: api → state → ui -->
+<script src="js/api.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ui.js"></script>
+
+</body>
+</html>
