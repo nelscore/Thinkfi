@@ -6,7 +6,7 @@
  * Works on ANY Node.js version (v14+), any OS, no compilation needed.
  *
  * Schema (thinkfi.json):
- *   users        — { id, email, name, createdAt, lastLogin }
+ *   users        — { id, email, phone, name, gender, birthDate, createdAt, lastLogin }
  *   otpCodes     — { id, email, code, expiresAt, used }
  *   transactions — { id, userId, amount, category, date, type, note, createdAt }
  *   goals        — { id, userId, name, target, saved, deadline, createdAt }
@@ -74,7 +74,7 @@ const users = {
   findById(id) {
     return read().users.find(u => u.id === id) || null;
   },
-  upsert(email, name) {
+  upsert(email, name, extras = {}) {
     return withLock(() => {
       const db  = read();
       const e   = email.toLowerCase().trim();
@@ -84,6 +84,9 @@ const users = {
       if (idx !== -1) {
         db.users[idx].lastLogin = now;
         if (name && name.trim()) db.users[idx].name = name.trim().slice(0, 80);
+        if (extras.phone) db.users[idx].phone = extras.phone.trim();
+        if (extras.gender) db.users[idx].gender = extras.gender.trim();
+        if (extras.birthDate) db.users[idx].birthDate = extras.birthDate.trim();
         writeSync(db);
         return db.users[idx];
       }
@@ -91,8 +94,10 @@ const users = {
       const user = {
         id:        randomUUID(),
         email:     e,
-        phone:     null,
+        phone:     extras.phone ? extras.phone.trim() : null,
         name:      (name || 'User').trim().slice(0, 80),
+        gender:    extras.gender ? extras.gender.trim() : null,
+        birthDate: extras.birthDate ? extras.birthDate.trim() : null,
         createdAt: now,
         lastLogin: now,
       };

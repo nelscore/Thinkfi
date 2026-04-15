@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ThinkFi is a secure AI-powered personal finance dashboard for budgeting, goal planning, and money insights." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23002f39'/%3E%3Ctext x='50' y='66' text-anchor='middle' font-family='Plus Jakarta Sans, Arial, sans-serif' font-size='64' fill='%23ffffff'%3EF%3C/text%3E%3C/svg%3E" />
+  <title>Welcome to ThinkFi</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow-x: hidden; perspective: 1000px; }
+    
+    .welcome-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f1419 0%, #1a2d35 50%, #213a44 100%);
+      position: relative;
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    /* 3D Animated background elements */
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.08;
+      mix-blend-mode: screen;
+      filter: blur(40px);
+      animation: subtleFloat3d 12s ease-in-out infinite;
+    }
+    .blob1 { width: 400px; height: 400px; background: #00d4c4; top: -100px; left: -100px; animation-delay: 0s; }
+    .blob2 { width: 300px; height: 300px; background: #7dd3c0; top: 50%; right: -50px; animation-delay: 4s; }
+    .blob3 { width: 350px; height: 350px; background: #1dddc4; bottom: -100px; left: 20%; animation-delay: 8s; }
+    @keyframes subtleFloat3d { 
+      0%, 100% { transform: translate(0, 0) rotateZ(0deg) scale(1); }
+      50% { transform: translate(30px, -30px) rotateZ(180deg) scale(0.95); }
+    }
+
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .welcome-logo {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      animation: gentleBounce 3s ease-in-out infinite;
+      text-shadow: 0 10px 30px rgba(0, 212, 255, 0.4), 0 20px 60px rgba(0, 212, 255, 0.2);
+      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+    }
+    @keyframes gentleBounce { 
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-12px) scale(1.02); }
+    }
+
+    .welcome-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #00d4c4 0%, #1dddc4 50%, #7dd3c0 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+      text-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.15));
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 2.5rem;
+      max-width: 550px;
+      line-height: 1.7;
+      font-weight: 400;
+      animation: fadeInUp 0.8s ease-out;
+      letter-spacing: 0.3px;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .trust-badges {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: rgba(0, 212, 196, 0.1);
+      border: 2px solid rgba(0, 212, 196, 0.5);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      color: #00d4c4;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .badge:hover {
+      background: rgba(0, 212, 196, 0.2);
+      box-shadow: 0 8px 20px rgba(0, 212, 196, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .welcome-cta {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 4rem;
+    }
+
+    .btn-welcome {
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-size: 1.05rem;
+      min-width: 200px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-welcome::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      transition: left 0.3s ease;
+      z-index: -1;
+    }
+
+    .btn-welcome:hover::before {
+      left: 0;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4c4 0%, #009999 100%);
+      color: #0f1419;
+      box-shadow: 0 8px 32px rgba(0, 212, 196, 0.3), inset 0 1px 0px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(0, 212, 196, 0.5), inset 0 1px 0px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+      transform: translateY(-5px);
+    }
+
+    .welcome-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin: 3rem auto;
+      max-width: 1100px;
+      width: 100%;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+      perspective: 1000px;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(185, 129, 255, 0.05) 100%);
+      border: 2px solid rgba(0, 212, 255, 0.2);
+      border-radius: 20px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+      transition: all 0.5s ease;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 60px rgba(0, 212, 255, 0.3);
+      border-color: rgba(0, 212, 255, 0.5);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(185, 129, 255, 0.1) 100%);
+    }
+
+    .feature-card:hover::before {
+      top: -10%;
+      right: -10%;
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: gentleFloat 4s ease-in-out infinite;
+      filter: drop-shadow(0 5px 15px rgba(0, 212, 255, 0.2));
+    }
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .feature-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .feature-desc {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.8;
+    }
+
+    .stats-section {
+      margin: 4rem auto;
+      max-width: 1100px;
+      width: 100%;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      perspective: 1000px;
+    }
+
+    .stat-item {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 232, 150, 0.08) 100%);
+      border: 2px solid rgba(0, 212, 255, 0.15);
+      border-radius: 18px;
+      padding: 2rem;
+      backdrop-filter: blur(15px);
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(00, 212, 255, 0.1), rgba(0, 232, 150, 0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+      z-index: 1;
+    }
+
+    .stat-item:hover::before {
+      transform: translateX(100%);
+    }
+
+    .stat-item:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0, 212, 255, 0.4);
+      box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
+    }
+
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00d4c4, #1dddc4);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.75);
+      font-weight: 600;
+      position: relative;
+      z-index: 2;
+    }
+
+    .work-section {
+      margin: 4rem auto;
+      max-width: 1100px;
+      width: 100%;
+      padding: 0 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      color: #fff;
+      background: linear-gradient(135deg, #00d4c4, #1dddc4);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 2.5rem;
+    }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.8rem;
+      margin-top: 2rem;
+      perspective: 1000px;
+    }
+
+    .work-card {
+      background: linear-gradient(135deg, rgba(185, 129, 255, 0.1) 0%, rgba(0, 232, 150, 0.05) 100%);
+      border: 2px solid rgba(185, 129, 255, 0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: left;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      backdrop-filter: blur(15px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .work-card::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(185, 129, 255, 0.2), transparent);
+      transition: top 0.4s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(185, 129, 255, 0.25);
+      border-color: rgba(185, 129, 255, 0.5);
+      background: linear-gradient(135deg, rgba(185, 129, 255, 0.12) 0%, rgba(0, 232, 150, 0.07) 100%);
+    }
+
+    .work-card:hover::before {
+      top: 0;
+    }
+
+    .work-step {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(185, 129, 255, 0.25));
+      color: #00d4ff;
+      font-weight: 900;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      position: relative;
+      z-index: 10;
+      animation: subtlePulse 2.5s ease-in-out infinite;
+    }
+    @keyframes subtlePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.2); }
+      50% { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
+    }
+
+    .work-card h4 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #fff;
+      font-weight: 800;
+      position: relative;
+      z-index: 10;
+    }
+
+    .work-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.8;
+      font-size: 1rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .auth-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.8rem;
+      margin: 4rem auto;
+      max-width: 1100px;
+      width: 100%;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+      perspective: 1000px;
+    }
+
+    .auth-card {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 232, 150, 0.08) 100%);
+      border: 2px solid rgba(0, 212, 255, 0.25);
+      border-radius: 22px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent);
+      transition: all 0.5s ease;
+    }
+
+    .auth-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 70px rgba(0, 212, 255, 0.25);
+      border-color: rgba(0, 212, 255, 0.45);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.16) 0%, rgba(0, 232, 150, 0.1) 100%);
+    }
+
+    .auth-card:hover::before {
+      top: -20%;
+      right: -20%;
+    }
+
+    .auth-card h3 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .auth-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.76);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .ff {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .ff label {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ff input,
+    .ff select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(0, 212, 255, 0.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .ff input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .ff input:focus,
+    .ff select:focus {
+      border-color: #00d4c4;
+      box-shadow: 0 0 0 3px rgba(0, 212, 196, 0.15), 0 8px 16px rgba(0, 212, 196, 0.12);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4c4, #009999);
+      color: #0f1419;
+      box-shadow: 0 8px 24px rgba(0, 212, 196, 0.3), 0 0 0 0 rgba(0, 212, 196, 0.1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0, 212, 196, 0.4), 0 0 20px rgba(0, 212, 196, 0.2);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      box-shadow: inset 0 1px 0px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1), inset 0 1px 0px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-full { width: 100%; }
+    .btn-sm { padding: 10px 18px; font-size: 12px; }
+
+    .auth-note {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .welcome-title { font-size: 2.2rem; }
+      .welcome-subtitle { font-size: 1rem; max-width: none; }
+      .section-title { font-size: 1.8rem; }
+      .work-grid, .welcome-features { grid-template-columns: 1fr; }
+      .welcome-cta { flex-direction: column; }
+      .btn-welcome { width: 100%; }
+      .trust-badges { flex-direction: column; align-items: center; }
+      .feature-card:hover { transform: translateY(-8px); }
+      .work-card:hover { transform: translateY(-6px); }
+      .auth-card:hover { transform: translateY(-6px); }
+      .feature-icon { animation: gentleBounce 3s ease-in-out infinite; }
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-container" id="welcome-container">
+    <div class="welcome-logo">💰</div>
+    <h1 class="welcome-title">Welcome to ThinkFi</h1>
+    <p class="welcome-subtitle">
+      Your AI-powered personal finance dashboard. Track expenses, set goals, and get smart insights to save smarter and live better.
+    </p>
+
+    <div class="welcome-features">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Smart Analytics</div>
+        <div class="feature-desc">Get detailed insights into your spending patterns with AI-powered analysis.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Goal Tracking</div>
+        <div class="feature-desc">Set and track financial goals with progress visualization and reminders.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI Assistant</div>
+        <div class="feature-desc">Ask questions and get personalized financial advice from our AI assistant.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Secure & Private</div>
+        <div class="feature-desc">Your data is encrypted and secure. We never share your personal information.</div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="about-section">
+      <h2>About ThinkFi</h2>
+      <p>
+        ThinkFi is your AI-powered personal finance companion. Built with cutting-edge technology, it helps you track expenses, set goals,
+        and get smart insights into your financial health. Our secure platform protects your privacy while delivering personalized guidance.
+      </p>
+        <div class="about-stats">
+        <div class="stat-item">
+          <div class="stat-number">Secure by design</div>
+          <div class="stat-label">Privacy-first finance</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">Real-time insights</div>
+          <div class="stat-label">Budget, goals, and cashflow</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">AI-powered advice</div>
+          <div class="stat-label">Personalized money guidance</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="work-section">
+      <h2>How ThinkFi Works</h2>
+      <div class="work-grid">
+        <div class="work-card">
+          <div class="work-step">1</div>
+          <h4>Connect your financial picture</h4>
+          <p>Start by signing in or signing up with your email. ThinkFi will help you add transactions, budgets, and goals instantly.</p>
+        </div>
+        <div class="work-card">
+          <div class="work-step">2</div>
+          <h4>Track spending automatically</h4>
+          <p>Add expenses and incomes, then watch your dashboard update with smart analytics and category-level insights.</p>
+        </div>
+        <div class="work-card">
+          <div class="work-step">3</div>
+          <h4>Plan goals with confidence</h4>
+          <p>Create savings targets, monitor progress, and get reminders so you never lose sight of what matters most.</p>
+        </div>
+        <div class="work-card">
+          <div class="work-step">4</div>
+          <h4>Get AI-powered advice</h4>
+          <p>Ask ThinkFi questions about your money, budget smarter, and receive personalized tips tailored to your habits.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-cta">
+      <button class="btn-welcome btn-primary" onclick="LandingUI.openSignup()">Get Started Free →</button>
+      <button class="btn-welcome btn-secondary" onclick="LandingUI.openLogin()">Sign In</button>
+    </div>
+
+    <div class="auth-panel">
+      <div class="auth-card">
+        <h3>Sign In</h3>
+        <p>Enter your email to receive a secure one-time login code and access your ThinkFi account instantly.</p>
+        <div class="ff"><label>Email address</label><input type="email" id="page-signin-email" placeholder="you@example.com"/></div>
+        <button class="btn btn-primary btn-full" onclick="LandingUI.pageSignIn()">Send login code</button>
+        <div class="auth-note">No password needed. Secure OTP access with email verification.</div>
+      </div>
+      <div class="auth-card">
+        <h3>Create Account</h3>
+        <p>New here? Sign up with your email and get started with automatic budgeting, goal planning, and AI insights.</p>
+        <div class="ff"><label>Full name</label><input type="text" id="page-signup-name" placeholder="Your name"/></div>
+        <div class="ff"><label>Email address</label><input type="email" id="page-signup-email" placeholder="you@example.com"/></div>
+        <button class="btn btn-secondary btn-full" onclick="LandingUI.pageSignUp()">Create account</button>
+        <div class="auth-note">You’ll be guided through verification and account setup in one flow.</div>
+      </div>
+    </div>
+  </div>
+  <div id="toast-root"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    window.LandingUI = (() => {
+      function openLogin() {
+        setAuthPurpose('signin');
+        setLoginEmail('');
+        setSignupData({});
+        document.getElementById('landing-ov-login').classList.add('open');
+        document.getElementById('landing-signup-fields').style.display = 'none';
+        document.getElementById('landing-auth-title').textContent = 'Welcome to ThinkFi';
+        document.getElementById('landing-auth-sub').textContent = 'Sign in to unlock all features';
+        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign In →';
+        ls(1);
+      }
+
+      function openSignup() {
+        setAuthPurpose('signup');
+        setLoginEmail('');
+        setSignupData({});
+        document.getElementById('landing-ov-login').classList.add('open');
+        document.getElementById('landing-signup-fields').style.display = 'block';
+        document.getElementById('landing-auth-title').textContent = 'Create Account';
+        document.getElementById('landing-auth-sub').textContent = 'Join ThinkFi and start your financial journey';
+        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign Up →';
+        ls(1);
+      }
+
+      function pageSignIn() {
+        const email = document.getElementById('page-signin-email').value.trim();
+        if (!email) { toast('Please enter your email to sign in.', 'e'); return; }
+        setAuthPurpose('signin');
+        setLoginEmail(email);
+        setSignupData({});
+        document.getElementById('landing-lf-in').value = email;
+        document.getElementById('landing-lf-nm').value = '';
+        document.getElementById('landing-signup-fields').style.display = 'none';
+        document.getElementById('landing-auth-title').textContent = 'Welcome to ThinkFi';
+        document.getElementById('landing-auth-sub').textContent = 'Sign in to unlock all features';
+        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign In →';
+        document.getElementById('landing-ov-login').classList.add('open');
+        ls(1);
+        sendOTP();
+      }
+
+      function pageSignUp() {
+        const name = document.getElementById('page-signup-name').value.trim();
+        const email = document.getElementById('page-signup-email').value.trim();
+        if (!name || !email) { toast('Please enter your name and email to create an account.', 'e'); return; }
+        setAuthPurpose('signup');
+        setLoginEmail(email);
+        setSignupData({ name });
+        document.getElementById('landing-lf-in').value = email;
+        document.getElementById('landing-lf-nm').value = name;
+        document.getElementById('landing-signup-fields').style.display = 'block';
+        document.getElementById('landing-auth-title').textContent = 'Create Account';
+        document.getElementById('landing-auth-sub').textContent = 'Join ThinkFi and start your financial journey';
+        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign Up →';
+        document.getElementById('landing-ov-login').classList.add('open');
+        ls(1);
+        setTimeout(() => document.getElementById('landing-lf-gender').focus(), 50);
+      }
+
+      function closeLogin() { document.getElementById('landing-ov-login').classList.remove('open'); }
+
+      function setLM(type) {
+        const active = document.getElementById('lm-email');
+        if (active) active.classList.toggle('on', type === 'email');
+        const label = document.getElementById('landing-lf-lbl');
+        if (label) label.textContent = 'Email Address';
+      }
+
+      function ls(n) { [1, 2, 3].forEach(i => document.getElementById('landing-ls' + i).style.display = i === n ? 'block' : 'none'); }
+
+      return { openLogin, openSignup, pageSignIn, pageSignUp, closeLogin, setLM, ls };
+    })();
+  </script>
+
+  <!-- ══════════════════════ LOGIN MODAL ══════════════════════ -->
+
+<!-- LOGIN -->
+<div class="overlay" id="landing-ov-login">
+  <div class="popup" style="max-width:360px;">
+    <button class="pp-close" onclick="LandingUI.closeLogin()">✕</button>
+    <div id="landing-ls1">
+      <div style="text-align:center;margin-bottom:20px;"><div style="font-size:40px;margin-bottom:10px;">🔐</div><div class="pp-title" id="landing-auth-title">Welcome to ThinkFi</div><div class="pp-sub" id="landing-auth-sub" style="margin-bottom:0;">Sign in to unlock all features</div></div>
+      <div class="login-methods">
+        <button class="lm-btn on" id="lm-email" onclick="LandingUI.setLM('email')">📧 Email</button>
+      </div>
+      <div class="ff"><label id="landing-lf-lbl">Email Address</label><input type="text" id="landing-lf-in" placeholder="you@example.com"/></div>
+      <div class="ff"><label>Your Name <span style="color:var(--text2);">(optional)</span></label><input type="text" id="landing-lf-nm" placeholder="What should we call you?"/></div>
+      <div id="landing-signup-fields" style="display:none;">
+        <div class="ff"><label>Gender</label><select id="landing-lf-gender"><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer not to say</option></select></div>
+        <div class="ff"><label>Date of Birth</label><input type="date" id="landing-lf-dob"/></div>
+        <div class="ff"><label>Phone Number</label><input type="text" id="landing-lf-phone" placeholder="+91 98765 43210"/></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="sendOTP()">Send Verification Code →</button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="LandingUI.closeLogin()" style="margin-top:12px;">Cancel</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text2);">No password needed · OTP verification</div>
+    </div>
+    <div id="landing-ls2" style="display:none;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:36px;margin-bottom:8px;">📨</div>
+        <div class="pp-title">Check your inbox</div>
+        <div class="pp-sub" style="margin-bottom:0;">We sent a 6-digit code to <span id="landing-otp-to" style="color:var(--c1);font-weight:700;"></span></div>
+      </div>
+      <!-- Real 6-digit OTP inputs -->
+      <div class="otp-grid" style="grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;">
+        <input class="otp-in" maxlength="1" id="landing-o0" oninput="onOTP(0)" onkeydown="onOTPBack(event,0)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="landing-o1" oninput="onOTP(1)" onkeydown="onOTPBack(event,1)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="landing-o2" oninput="onOTP(2)" onkeydown="onOTPBack(event,2)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="landing-o3" oninput="onOTP(3)" onkeydown="onOTPBack(event,3)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="landing-o4" oninput="onOTP(4)" onkeydown="onOTPBack(event,4)" type="text" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-in" maxlength="1" id="landing-o5" oninput="onOTP(5)" onkeydown="onOTPBack(event,5)" type="text" inputmode="numeric" pattern="[0-9]"/>
+      </div>
+      <div id="landing-otp-error" style="display:none;color:var(--red);font-size:12px;text-align:center;margin-bottom:10px;"></div>
+      <button class="btn btn-primary btn-full" id="landing-verify-btn" onclick="verifyOTP()">Verify & Sign In →</button>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="LandingUI.ls(1)">← Back</button>
+        <button class="btn btn-ghost btn-sm" id="landing-resend-btn" onclick="resendOTP()">Resend code</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text2);">Code expires in 10 minutes</div>
+    </div>
+    <div id="landing-ls3" style="display:none;">
+      <div class="congrats-wrap">
+        <span class="cg-emoji">🎉</span>
+        <div class="cg-title">You're all set!</div>
+        <div class="cg-sub">Full access unlocked. Welcome to ThinkFi!</div>
+        <div class="unlock-chips">
+          <span class="uc">✅ Save Data</span><span class="uc">✅ Full AI</span>
+          <span class="uc">✅ Analytics</span><span class="uc">✅ History</span><span class="uc">✅ Export</span>
+        </div>
+        <button class="btn btn-primary" onclick="finishLogin()" style="width:200px;">Start Using ThinkFi →</button>
+      </div>
+    </div>
+  </div>
+</div></body>
+</html>

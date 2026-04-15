@@ -1,25 +1,26 @@
-'use strict';
+(function() {
+  'use strict';
 
-/**
- * api.js — All HTTP communication with the ThinkFi server.
- * - Automatically attaches JWT Bearer token to every request.
- * - Token stored in localStorage under 'tf_token'.
- * - On 401: clears token and triggers re-login UI.
- */
+  /**
+   * api.js — All HTTP communication with the ThinkFi server.
+   * - Automatically attaches JWT Bearer token to every request.
+   * - Token stored in localStorage under 'tf_token'.
+   * - On 401: clears token and triggers re-login UI.
+   */
 
-const BASE = '/api';
+  const BASE = '/api';
 
-// ── Token management ──────────────────────────────────────────
-const Auth = {
-  getToken()        { return localStorage.getItem('tf_token'); },
-  setToken(t)       { localStorage.setItem('tf_token', t); },
-  clearToken()      { localStorage.removeItem('tf_token'); },
-  isLoggedIn()      { return !!this.getToken(); },
-};
-window.Auth = Auth;
+  // ── Token management ──────────────────────────────────────────
+  const Auth = {
+    getToken()        { return localStorage.getItem('tf_token'); },
+    setToken(t)       { localStorage.setItem('tf_token', t); },
+    clearToken()      { localStorage.removeItem('tf_token'); },
+    isLoggedIn()      { return !!this.getToken(); },
+  };
+  window.Auth = Auth;
 
-// ── Core request ──────────────────────────────────────────────
-async function request(method, path, body) {
+  // ── Core request ──────────────────────────────────────────────
+  async function request(method, path, body) {
   const headers = { 'Content-Type': 'application/json' };
   const token   = Auth.getToken();
   if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -49,12 +50,10 @@ async function request(method, path, body) {
 }
 
 // ── Auth endpoints (no JWT needed) ───────────────────────────
-const sendOTPRequest     = (email, name) => request('POST', '/auth/send-otp',   { email, name });
-const verifyOTPRequest   = (email, code, name) => request('POST', '/auth/verify-otp', { email, code, name });
-const sendOTPPhoneRequest = (phone, name) => request('POST', '/auth/send-otp-phone',   { phone, name });
-const verifyOTPPhoneRequest = (phone, code, name) => request('POST', '/auth/verify-otp-phone', { phone, code, name });
-const getMe              = ()            => request('GET',  '/auth/me');
-const logoutRequest      = ()            => request('POST', '/auth/logout');
+const sendOTPRequest   = (email, name) => request('POST', '/auth/send-otp', { email, name });
+const verifyOTPRequest = (email, code, name, gender, birthDate, phone) => request('POST', '/auth/verify-otp', { email, code, name, gender, birthDate, phone });
+const getMe            = () => request('GET', '/auth/me');
+const logoutRequest    = () => request('POST', '/auth/logout');
 
 // ── Transactions ──────────────────────────────────────────────
 const getTransactions    = (f = {}) => { const qs = new URLSearchParams(f).toString(); return request('GET', `/transactions${qs ? '?' + qs : ''}`); };
@@ -75,8 +74,12 @@ const askAI      = (msg)     => request('POST',   '/ai/chat', { message: msg });
 const healthCheck = ()       => request('GET', '/health');
 
 window.API = {
-  sendOTPRequest, verifyOTPRequest, sendOTPPhoneRequest, verifyOTPPhoneRequest, getMe, logoutRequest,
+  sendOTPRequest, verifyOTPRequest, getMe, logoutRequest,
   getTransactions, createTransaction, updateTransaction, deleteTransaction,
   getGoals, createGoal, updateGoal, deleteGoal,
   askAI, healthCheck,
 };
+
+  // Keep a lowercase alias for older page code that still calls `api.*`.
+  window.api = window.API;
+})();

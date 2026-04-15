@@ -1,9 +1,17 @@
 'use strict';
 
 const express = require('express');
-const router  = express.Router();
+
 const { transactions, goals } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+
+const router = express.Router();
+
+function isConfiguredValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized) return false;
+  return !/^(your_|replace_with_)/i.test(normalized);
+}
 
 function buildOfflineAIReply(message, ctx) {
   const lower = message.toLowerCase();
@@ -11,8 +19,8 @@ function buildOfflineAIReply(message, ctx) {
   const { income, expense, net, rate, topCats, goalSummary } = ctx;
 
   if (lower.includes('save') || lower.includes('money') || lower.includes('spend')) {
-    parts.push(`You earn ₹${income.toLocaleString('en-IN')} and spend ₹${expense.toLocaleString('en-IN')} monthly.`);
-    parts.push(`Your savings rate is ${rate}% and your net balance is ₹${net.toLocaleString('en-IN')}.`);
+    parts.push(`You earn Rs ${income.toLocaleString('en-IN')} and spend Rs ${expense.toLocaleString('en-IN')} monthly.`);
+    parts.push(`Your savings rate is ${rate}% and your net balance is Rs ${net.toLocaleString('en-IN')}.`);
     parts.push('Focus first on the largest expense categories and automate at least one recurring savings transfer each month.');
     if (topCats) {
       parts.push(`Your top spending areas are ${topCats}. Start by cutting one small expense there.`);
@@ -37,25 +45,29 @@ function buildOfflineAIReply(message, ctx) {
   return 'I am running in offline mode. Track your income and expenses, then ask me for savings tips, budgeting ideas, or goal planning advice.';
 }
 
-// ── Rate limiter (per IP, 10 req/min) ────────────────────────
 const rateMap = new Map();
+
 function isRateLimited(ip) {
-  const now   = Date.now();
+  const now = Date.now();
   const entry = rateMap.get(ip) || { count: 0, resetAt: now + 60_000 };
-  if (now > entry.resetAt) { entry.count = 0; entry.resetAt = now + 60_000; }
+
+  if (now > entry.resetAt) {
+    entry.count = 0;
+    entry.resetAt = now + 60_000;
+  }
+
   entry.count++;
   rateMap.set(ip, entry);
   return entry.count > 10;
 }
+
 setInterval(() => {
   const cutoff = Date.now() - 5 * 60_000;
-  for (const [ip, e] of rateMap) if (e.resetAt < cutoff) rateMap.delete(ip);
+  for (const [ip, entry] of rateMap) {
+    if (entry.resetAt < cutoff) rateMap.delete(ip);
+  }
 }, 5 * 60_000).unref();
 
-/**
- * POST /api/ai/chat
- * Requires valid JWT. Builds financial context from real DB data.
- */
 router.post('/chat', requireAuth, async (req, res, next) => {
   try {
     if (isRateLimited(req.ip)) {
@@ -70,45 +82,46 @@ router.post('/chat', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'message must be under 1000 characters' });
     }
 
-    // Build context from THIS user's real data
-    const txs      = transactions.getAll(req.user.id);
+    const txs = transactions.getAll(req.user.id);
     const goalList = goals.getAll(req.user.id);
 
-    const income  = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    const net     = income - expense;
-    const rate    = income > 0 ? ((net / income) * 100).toFixed(1) : 0;
+    const income = txs.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expense = txs.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const net = income - expense;
+    const rate = income > 0 ? ((net / income) * 100).toFixed(1) : 0;
 
     const catTotals = {};
     txs.filter(t => t.type === 'expense').forEach(t => {
       catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
     });
+
     const topCats = Object.entries(catTotals)
-      .sort((a, b) => b[1] - a[1]).slice(0, 4)
-      .map(([k, v]) => `${k}: ₹${v.toLocaleString('en-IN')}`).join(', ');
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([key, value]) => `${key}: Rs ${value.toLocaleString('en-IN')}`)
+      .join(', ');
 
     const goalSummary = goalList
-      .map(g => `${g.name} (${Math.round((g.saved / g.target) * 100)}%)`)
+      .map(goal => `${goal.name} (${Math.round((goal.saved / goal.target) * 100)}%)`)
       .join(', ');
 
     const aiContext = { income, expense, net, rate, topCats, goalSummary };
-    if (!process.env.ANTHROPIC_API_KEY) {
-      const reply = buildOfflineAIReply(message, aiContext);
-      return res.json({ reply });
+    if (!isConfiguredValue(process.env.ANTHROPIC_API_KEY)) {
+      return res.json({ reply: buildOfflineAIReply(message, aiContext) });
     }
 
     const systemPrompt = `You are ThinkFi, a smart personal finance AI advisor for ${req.user.name}.
 User financial data:
-- Total income: ₹${income.toLocaleString('en-IN')}
-- Total expenses: ₹${expense.toLocaleString('en-IN')}
-- Net savings: ₹${net.toLocaleString('en-IN')}
+- Total income: Rs ${income.toLocaleString('en-IN')}
+- Total expenses: Rs ${expense.toLocaleString('en-IN')}
+- Net savings: Rs ${net.toLocaleString('en-IN')}
 - Savings rate: ${rate}%
 - Top spending categories: ${topCats || 'none yet'}
 - Goals: ${goalSummary || 'none yet'}
 
 Instructions:
-- Be concise and specific. Use bullet points (•). Max 130 words.
-- Always use ₹ for Indian currency.
+- Be concise and specific. Use bullet points. Max 130 words.
+- Use Rs for Indian currency.
 - Reference the actual numbers above in your advice.
 - Be encouraging but honest.`;
 
@@ -120,7 +133,7 @@ Instructions:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-latest',
         max_tokens: 400,
         system: systemPrompt,
         messages: [{ role: 'user', content: message.trim() }],
@@ -132,12 +145,11 @@ Instructions:
       return res.status(502).json({ error: 'AI service unavailable. Try again shortly.' });
     }
 
-    const data  = await response.json();
+    const data = await response.json();
     const reply = data.content?.[0]?.text || 'Sorry, no response from AI.';
-    res.json({ reply });
-
+    return res.json({ reply });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 });
 

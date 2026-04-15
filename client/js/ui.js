@@ -54,6 +54,10 @@ const fmtDate = d => {
   if (!d) return '';
   return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 };
+const fmtSignedFull = n => {
+  const sign = n < 0 ? '-' : '';
+  return sign + '\u20B9' + Math.abs(n).toLocaleString('en-IN');
+};
 const catShort = c => {
   const l = CATS[c] || c;
   return l.split(' ').slice(1).join(' ') || l;
@@ -170,7 +174,8 @@ window.addEventListener('DOMContentLoaded', () => {
 function loadTheme() {
   const theme = State.ui.theme;
   document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('theme-btn').textContent = theme === 'dark' ? '🌙' : '☀️';
+  const themeBtn = document.getElementById('theme-btn');
+  if (themeBtn) themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
   const t = document.getElementById('theme-toggle');
   if (t) t.checked = theme === 'dark';
 }
@@ -185,6 +190,31 @@ function toggleTheme() {
   setTimeout(() => { if (CHART_STATE.trendCh) updateCharts(); }, 50);
 }
 window.toggleTheme = toggleTheme;
+
+function setAIStatus(isOnline) {
+  const dot = document.getElementById('ai-status-dot');
+  const txt = document.getElementById('ai-status-text');
+  if (!dot || !txt) return;
+  if (isOnline) {
+    dot.style.background = 'var(--green)';
+    txt.textContent = 'Online';
+    txt.style.color = 'var(--green)';
+  } else {
+    dot.style.background = 'var(--red)';
+    txt.textContent = 'Offline';
+    txt.style.color = 'var(--red)';
+  }
+}
+
+async function refreshAIStatus() {
+  try {
+    await API.healthCheck();
+    setAIStatus(true);
+  } catch (_) {
+    setAIStatus(false);
+  }
+}
+window.refreshAIStatus = refreshAIStatus;
 
 // ── Bootstrap: load all data from server ─────────────────
 
@@ -236,13 +266,13 @@ function refreshAll() {
   animNum('s-exp', exp, false, true);
   document.getElementById('s-rate').textContent = rate + '%';
 
-  document.getElementById('rp-net').textContent   = fmtFull(net);
+  document.getElementById('rp-net').textContent   = fmtSignedFull(net);
   document.getElementById('rp-rate').textContent  = rate + '%';
   document.getElementById('rp-burn').textContent  = fmtFull(exp);
   document.getElementById('rp-daily').textContent = fmtFull(Math.round(exp / 30));
 
   const heroNet = document.getElementById('hero-net');
-  if (heroNet) heroNet.textContent = fmtFull(net);
+  if (heroNet) heroNet.textContent = fmtSignedFull(net);
   const heroRate = document.getElementById('hero-rate');
   if (heroRate) heroRate.textContent = rate + '%';
   const heroInc = document.getElementById('hero-inc');
@@ -265,6 +295,7 @@ function refreshAll() {
   renderRPSources();
   refreshDataPage();
   renderBudgetCats();
+  renderNotifications();
 }
 
 function initHome3DMotion() {
@@ -584,7 +615,7 @@ function refreshDataPage() {
 function refreshAnalytics() {
   document.getElementById('an-inc').textContent = fmtFull(State.totalIncome);
   document.getElementById('an-exp').textContent = fmtFull(State.totalExpense);
-  document.getElementById('an-sav').textContent = fmtFull(State.netBalance);
+  document.getElementById('an-sav').textContent = fmtSignedFull(State.netBalance);
   renderCatBreakdown();
   renderTxTable();
   if (!CHART_STATE.trendCh || !CHART_STATE.pieCh) initCharts();
@@ -1471,6 +1502,93 @@ window.closeHist = closeHist;
 
 // ── Notifications ─────────────────────────────────────────
 
+function formatNotifTime(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const dt = new Date(dateStr + 'T00:00:00');
+  const diffMinutes = Math.floor((now - dt) / 60000);
+  if (diffMinutes < 1) return 'Just now';
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return fmtDate(dateStr);
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+
+  const notifs = [];
+  const goals = State.goals;
+  const txs = [...State.transactions].sort((a, b) => new Date(b.date + 'T00:00:00') - new Date(a.date + 'T00:00:00'));
+
+  if (goals.length) {
+    const bestGoal = goals.reduce((best, goal) => {
+      const progress = goal.target ? Math.round((goal.saved / goal.target) * 100) : 0;
+      if (!best || progress > best.progress) return { goal, progress };
+      return best;
+    }, null);
+    if (bestGoal) {
+      const text = bestGoal.progress >= 100
+        ? `Goal "${bestGoal.goal.name}" is complete! 🎉`
+        : `Goal "${bestGoal.goal.name}" is ${bestGoal.progress}% complete 🎯`;
+      notifs.push({ text, time: bestGoal.goal.updatedAt || bestGoal.goal.date || '', type: 'goal' });
+    }
+  }
+
+  const monthPrefix = new Date().toISOString().slice(0, 7);
+  const thisMonthExpenses = txs.filter(t => t.type === 'expense' && t.date && t.date.startsWith(monthPrefix));
+  if (thisMonthExpenses.length) {
+    const totals = thisMonthExpenses.reduce((sum, tx) => {
+      sum[tx.category] = (sum[tx.category] || 0) + tx.amount;
+      return sum;
+    }, {});
+    const topCategory = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+    if (topCategory) {
+      const [category, amount] = topCategory;
+      notifs.push({
+        text: `This month you spent ${fmtFull(amount)} on ${CATS[category] || category}.`, 
+        time: 'This month',
+        type: 'expense'
+      });
+    }
+  }
+
+  if (txs.length) {
+    const latest = txs[0];
+    const action = latest.type === 'expense' ? 'Spent' : 'Received';
+    const label = latest.note || CATS[latest.category] || latest.category;
+    notifs.push({
+      text: `${action} ${fmtFull(latest.amount)} for ${label}.`, 
+      time: formatNotifTime(latest.date),
+      type: 'transaction'
+    });
+  }
+
+  if (!notifs.length) {
+    notifs.push({
+      text: 'No notifications yet. Add goals or transactions to start receiving updates.',
+      time: '',
+      type: 'info'
+    });
+  }
+
+  list.innerHTML = notifs.map(n => `
+    <div class="notif-row">
+      <div class="notif-dot-ind" style="opacity:${n.type === 'info' ? '0' : '1'}"></div>
+      <div>
+        <div class="notif-row-text">${n.text}</div>
+        <div class="notif-row-time">${n.time}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('notif-badge').style.display = notifs.some(n => n.type !== 'info') ? 'block' : 'none';
+}
+
 function toggleNotif() { document.getElementById('notif-dd').classList.toggle('open'); }
 function clearNotifs() {
   document.querySelectorAll('.notif-dot-ind').forEach(d => d.style.opacity = '0');
@@ -1541,96 +1659,119 @@ function appendAI(role, text) {
 // ── Real Auth (Email OTP + JWT) ───────────────────────────────
 
 let _loginEmail = ''; // store email between steps
-let _loginPhone = ''; // store phone between steps
-let _loginMode = 'email'; // track current mode: 'email' or 'phone'
+let _authPurpose = 'signin'; // track current auth action: 'signin' or 'signup'
+let _signupData = { name: '', gender: '', birthDate: '', phone: '' };
 
-function openLogin() { document.getElementById('ov-login').classList.add('open'); ls(1); }
-function closeLogin() { document.getElementById('ov-login').classList.remove('open'); }
-function ls(n) { [1, 2, 3].forEach(i => document.getElementById('ls' + i).style.display = i === n ? 'block' : 'none'); }
-
-function setLM(m) {
-  _loginMode = m;
-  document.getElementById('lm-email').className = 'lm-btn' + (m === 'email' ? ' on' : '');
-  document.getElementById('lm-phone').className = 'lm-btn' + (m === 'phone' ? ' on' : '');
-  document.getElementById('lf-lbl').textContent = m === 'email' ? 'Email Address' : 'Phone Number';
-  document.getElementById('lf-in').placeholder  = m === 'email' ? 'you@example.com' : '+91 98765 43210';
+function setAuthPurpose(purpose = 'signin') {
+  _authPurpose = purpose;
+}
+function setLoginEmail(email = '') {
+  _loginEmail = email;
+}
+function setSignupData(data = {}) {
+  _signupData = {
+    name: data.name || '',
+    gender: data.gender || '',
+    birthDate: data.birthDate || '',
+    phone: data.phone || '',
+  };
 }
 
-// Step 1: Send real OTP to email or phone via server
+function openAuth(purpose = 'signin') {
+  _authPurpose = purpose;
+  const title = getEl('auth-title');
+  const sub   = getEl('auth-sub');
+  const verifyBtn = getEl('verify-btn');
+  const signupFields = getEl('signup-fields');
+  if (title) title.textContent = purpose === 'signup' ? 'Create your ThinkFi account' : 'Welcome back to ThinkFi';
+  if (sub) sub.textContent = purpose === 'signup' ? 'Sign up to unlock all features' : 'Sign in to unlock all features';
+  if (verifyBtn) verifyBtn.textContent = purpose === 'signup' ? 'Verify & Sign Up →' : 'Verify & Sign In →';
+  if (signupFields) signupFields.style.display = purpose === 'signup' ? 'block' : 'none';
+  getEl('ov-login')?.classList.add('open');
+  ls(1);
+}
+function openLogin() { openAuth('signin'); }
+function openSignup() { openAuth('signup'); }
+function closeLogin() { getEl('ov-login')?.classList.remove('open'); }
+function ls(n) { [1, 2, 3].forEach(i => { const el = getEl('ls' + i); if (el) el.style.display = i === n ? 'block' : 'none'; }); }
+
+// Step 1: Send real OTP to email via server
+function getEl(id) {
+  return document.getElementById(id) || document.getElementById('landing-' + id);
+}
+
+function isWelcomePage() {
+  return !!document.getElementById('welcome-container') || /\/welcome\.html$/i.test(window.location.pathname);
+}
+
 async function sendOTP() {
-  const input = document.getElementById('lf-in').value.trim();
-  const name  = document.getElementById('lf-nm').value.trim();
+  const inputEl = getEl('lf-in');
+  const nameEl  = getEl('lf-nm');
+  const genderEl = getEl('lf-gender');
+  const birthDateEl = getEl('lf-dob');
+  const phoneEl = getEl('lf-phone');
 
-  if (_loginMode === 'email') {
-    if (!input) { toast('Enter your email address', 'e'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { toast('Enter a valid email address', 'e'); return; }
-    _loginEmail = input;
+  const input = inputEl?.value.trim() || '';
+  const name  = nameEl?.value.trim() || '';
+  const gender = genderEl?.value || '';
+  const birthDate = birthDateEl?.value || '';
+  const phone = phoneEl?.value.trim() || '';
 
-    const btn = document.querySelector('#ls1 .btn-primary');
-    const orig = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
+  if (!input) { toast('Enter your email address', 'e'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) { toast('Enter a valid email address', 'e'); return; }
+  _loginEmail = input;
 
-    try {
-      await API.sendOTPRequest(input, name);
-      document.getElementById('otp-to').textContent = input;
-      [0,1,2,3,4,5].forEach(i => { const el = document.getElementById('o' + i); if (el) el.value = ''; });
-      const errEl = document.getElementById('otp-error');
-      if (errEl) errEl.style.display = 'none';
-      ls(2);
-      setTimeout(() => { const el = document.getElementById('o0'); if (el) el.focus(); }, 200);
-      toast('✉️ Code sent! Check your inbox.', 's');
-    } catch (err) {
-      toast('Error: ' + err.message, 'e');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = orig;
-    }
-  } else if (_loginMode === 'phone') {
-    if (!input) { toast('Enter your phone number', 'e'); return; }
-    if (!/^[+]?[0-9\s\-()]{7,}$/.test(input)) { toast('Enter a valid phone number', 'e'); return; }
-    _loginPhone = input;
+  if (_authPurpose === 'signup') {
+    if (!name) { toast('Enter your full name', 'e'); return; }
+    if (!gender) { toast('Select your gender', 'e'); return; }
+    if (!birthDate) { toast('Enter your date of birth', 'e'); return; }
+    if (new Date(birthDate) > new Date()) { toast('Date of birth cannot be in the future', 'e'); return; }
+    if (!phone) { toast('Enter your phone number', 'e'); return; }
+    if (!/^[+]?[0-9\s\-()]{7,}$/.test(phone)) { toast('Enter a valid phone number', 'e'); return; }
+    _signupData = { name, gender, birthDate, phone };
+  } else {
+    _signupData = { name, gender: '', birthDate: '', phone: '' };
+  }
 
-    const btn = document.querySelector('#ls1 .btn-primary');
-    const orig = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
+  const btn = getEl('ls1')?.querySelector('.btn-primary');
+  if (!btn) {
+    toast('Login form could not be initialized. Please refresh and try again.', 'e');
+    return;
+  }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
 
-    try {
-      await API.sendOTPPhoneRequest(input, name);
-      document.getElementById('otp-to').textContent = input;
-      [0,1,2,3,4,5].forEach(i => { const el = document.getElementById('o' + i); if (el) el.value = ''; });
-      const errEl = document.getElementById('otp-error');
-      if (errEl) errEl.style.display = 'none';
-      ls(2);
-      setTimeout(() => { const el = document.getElementById('o0'); if (el) el.focus(); }, 200);
-      toast('📱 Code sent! Check your messages.', 's');
-    } catch (err) {
-      toast('Error: ' + err.message, 'e');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = orig;
-    }
+  try {
+    await API.sendOTPRequest(input, name);
+    const otpTo = getEl('otp-to');
+    if (otpTo) otpTo.textContent = input;
+    [0,1,2,3,4,5].forEach(i => { const el = getEl('o' + i); if (el) el.value = ''; });
+    const errEl = getEl('otp-error');
+    if (errEl) errEl.style.display = 'none';
+    ls(2);
+    setTimeout(() => { const el = getEl('o0'); if (el) el.focus(); }, 200);
+    toast('✉️ Code sent! Check your inbox.', 's');
+  } catch (err) {
+    toast('Error: ' + err.message, 'e');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
   }
 }
 window.sendOTP = sendOTP;
 
 // Resend OTP (same as sendOTP but from step 2)
 async function resendOTP() {
-  const btn = document.getElementById('resend-btn');
+  const btn = getEl('resend-btn');
   if (!btn || btn.disabled) return;
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
-    if (_loginMode === 'email') {
-      await API.sendOTPRequest(_loginEmail, '');
-      toast('✉️ New code sent!', 's');
-    } else if (_loginMode === 'phone') {
-      await API.sendOTPPhoneRequest(_loginPhone, '');
-      toast('📱 New code sent!', 's');
-    }
-    [0,1,2,3,4,5].forEach(i => { const el = document.getElementById('o' + i); if (el) el.value = ''; });
-    document.getElementById('o0')?.focus();
+    await API.sendOTPRequest(_loginEmail, '');
+    toast('✉️ New code sent!', 's');
+    [0,1,2,3,4,5].forEach(i => { const el = getEl('o' + i); if (el) el.value = ''; });
+    getEl('o0')?.focus();
   } catch (err) {
     toast('Error: ' + err.message, 'e');
   } finally {
@@ -1641,74 +1782,90 @@ async function resendOTP() {
 
 // Auto-advance to next OTP box, only on digit input
 function onOTP(i) {
-  const el  = document.getElementById('o' + i);
+  const el  = getEl('o' + i);
+  if (!el) return;
   const val = el.value.replace(/\D/g, ''); // digits only
   el.value  = val.slice(-1);               // keep last digit if pasted multiple
 
   // If user pasted all 6 digits into first box, distribute them
   if (i === 0 && val.length > 1) {
     val.slice(0, 6).split('').forEach((d, j) => {
-      const box = document.getElementById('o' + j);
+      const box = getEl('o' + j);
       if (box) box.value = d;
     });
-    document.getElementById('o5')?.focus();
+    getEl('o5')?.focus();
     setTimeout(verifyOTP, 300);
     return;
   }
 
-  if (el.value && i < 5) document.getElementById('o' + (i + 1))?.focus();
+  if (el.value && i < 5) getEl('o' + (i + 1))?.focus();
 
-  const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('o' + j)?.value);
+  const allFilled = [0,1,2,3,4,5].every(j => getEl('o' + j)?.value);
   if (allFilled) setTimeout(verifyOTP, 300);
 }
 
 function onOTPBack(e, i) {
-  if (e.key === 'Backspace' && !document.getElementById('o' + i).value && i > 0) {
-    document.getElementById('o' + (i - 1))?.focus();
+  const el = getEl('o' + i);
+  if (e.key === 'Backspace' && el && !el.value && i > 0) {
+    getEl('o' + (i - 1))?.focus();
   }
 }
 
 // Step 2: Verify OTP with server — get JWT back
 async function verifyOTP() {
-  const code = [0,1,2,3,4,5].map(i => document.getElementById('o' + i)?.value || '').join('');
+  const code = [0,1,2,3,4,5].map(i => getEl('o' + i)?.value || '').join('');
   if (code.length < 6) { toast('Enter all 6 digits', 'e'); return; }
 
-  const errEl = document.getElementById('otp-error');
-  const btn   = document.getElementById('verify-btn');
+  const errEl = getEl('otp-error');
+  const btn   = getEl('verify-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
   if (errEl) errEl.style.display = 'none';
 
-  const name = document.getElementById('lf-nm').value.trim();
+  const name = getEl('lf-nm')?.value.trim() || '';
 
   try {
-    let result;
-    if (_loginMode === 'email') {
-      result = await API.verifyOTPRequest(_loginEmail, code, name);
-    } else if (_loginMode === 'phone') {
-      result = await API.verifyOTPPhoneRequest(_loginPhone, code, name);
-    }
+    const result = await API.verifyOTPRequest(
+      _loginEmail,
+      code,
+      name,
+      _signupData.gender,
+      _signupData.birthDate,
+      _signupData.phone,
+    );
     const { token, user } = result;
 
     // Store JWT — this is what makes auth real
     Auth.setToken(token);
 
     // Update app state
-    State.setUser({ name: user.name, email: user.email, phone: user.phone, loggedIn: true });
+    State.setUser({ name: user.name, email: user.email, loggedIn: true });
+
+    if (isWelcomePage()) {
+      location.href = '/index.html#/home';
+      return;
+    }
 
     ls(3); // show success screen
   } catch (err) {
     if (errEl) { errEl.textContent = err.message; errEl.style.display = 'block'; }
     else toast(err.message, 'e');
     // Clear inputs on wrong code
-    [0,1,2,3,4,5].forEach(i => { const el = document.getElementById('o' + i); if (el) el.value = ''; });
-    document.getElementById('o0')?.focus();
+    [0,1,2,3,4,5].forEach(i => { const el = getEl('o' + i); if (el) el.value = ''; });
+    getEl('o0')?.focus();
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Sign In →'; }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = _authPurpose === 'signup' ? 'Verify & Sign Up →' : 'Verify & Sign In →';
+    }
   }
 }
 
 function finishLogin() {
   closeLogin();
+  if (!document.getElementById('auth-area') || isWelcomePage()) {
+    location.href = '/index.html#/home';
+    return;
+  }
   unlockApp();
   // Reload data for this user from server
   bootstrap();
@@ -1735,13 +1892,19 @@ function unlockApp() {
   setGreeting();
 }
 
+function redirectToLanding() {
+  if (window.location.pathname !== '/welcome.html') {
+    window.location.replace('/welcome.html');
+  }
+}
+
 async function doLogout() {
   try { await API.logoutRequest(); } catch (_) { /* ignore */ }
   Auth.clearToken();
   State.setUser({ name: 'Guest', email: '', loggedIn: false });
   State.setTransactions([]);
   State.setGoals([]);
-  document.getElementById('auth-area').innerHTML = `<button class="tb-login-btn" onclick="openLogin()">🔐 Sign In</button>`;
+  document.getElementById('auth-area').innerHTML = `<button class="tb-login-btn" onclick="openLogin()">🔐 Sign In</button><button class="tb-login-btn" onclick="openSignup()">📝 Sign Up</button>`;
   document.getElementById('sb-av').textContent  = 'G';
   document.getElementById('sb-nm').textContent  = 'Guest User';
   document.getElementById('sb-rl').textContent  = 'Demo Mode';
@@ -1756,11 +1919,12 @@ async function doLogout() {
   refreshAll(); updateCharts();
   toast('Logged out', 'i');
   setGreeting();
+  redirectToLanding();
 }
 
 window.openLogin   = openLogin;
+window.openSignup  = openSignup;
 window.closeLogin  = closeLogin;
-window.setLM       = setLM;
 window.sendOTP     = sendOTP;
 window.resendOTP   = resendOTP;
 window.onOTP       = onOTP;
@@ -1907,21 +2071,24 @@ document.querySelectorAll('.overlay').forEach(o =>
 
 window.addEventListener('DOMContentLoaded', () => {
   loadTheme();
-  setGreeting();
-  setType('income');
-  document.getElementById('tx-dt').valueAsDate = new Date();
-  document.getElementById('g-dl').valueAsDate  = new Date(Date.now() + 180 * 86400000);
+  refreshAIStatus();
+  if (document.getElementById('tx-dt')) {
+    setGreeting();
+    setType('income');
+    document.getElementById('tx-dt').valueAsDate = new Date();
+    document.getElementById('g-dl').valueAsDate  = new Date(Date.now() + 180 * 86400000);
 
-  const prefs = JSON.parse(localStorage.getItem('tf_prefs') || '{}');
-  if (prefs.name)  document.getElementById('pf-name').value  = prefs.name;
-  if (prefs.email) document.getElementById('pf-email').value = prefs.email;
+    const prefs = JSON.parse(localStorage.getItem('tf_prefs') || '{}');
+    if (prefs.name)  document.getElementById('pf-name').value  = prefs.name;
+    if (prefs.email) document.getElementById('pf-email').value = prefs.email;
 
-  const route = (location.hash.replace('#/', '')) || 'home';
-  const el    = document.querySelector(`[data-r="${route}"]`);
-  if (el) go(route, el); else refreshAll();
+    const route = (location.hash.replace('#/', '')) || 'home';
+    const el    = document.querySelector(`[data-r="${route}"]`);
+    if (el) go(route, el); else refreshAll();
 
-  bootstrap();
-  initHome3DMotion();
+    bootstrap();
+    initHome3DMotion();
+  }
 });
 
 window.addEventListener('popstate', () => {
