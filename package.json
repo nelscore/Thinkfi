@@ -1,21 +1,22 @@
 {
   "name": "thinkfi",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "AI-powered personal finance dashboard",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
-    "test": "echo \"Add Jest tests here\" && exit 0"
+    "test": "jest --runInBand"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.9.9"
+    "nodemailer": "^8.0.5"
   },
   "devDependencies": {
+    "jest": "^29.0.0",
     "nodemon": "^3.0.1"
   }
 }
