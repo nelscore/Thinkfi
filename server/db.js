@@ -222,7 +222,7 @@ const transactions = {
       const tx = {
         id:        randomUUID(),
         userId,
-        amount:    Number(body.amount),
+        amount:    Math.min(Number(body.amount), 1_000_000_000),
         category:  VALID_CATS.has(body.category) ? body.category : 'other',
         date:      body.date,
         type:      body.type,
@@ -286,7 +286,7 @@ const goals = {
         id:            randomUUID(),
         userId,
         name:          body.name.trim().slice(0, 100),
-        target:        Number(body.target),
+        target:        Math.min(Number(body.target), 1_000_000_000),
         saved:         Math.max(0, Number(body.saved) || 0),
         startDate:     body.startDate && /^\d{4}-\d{2}-\d{2}$/.test(body.startDate) ? body.startDate : new Date().toISOString().slice(0, 10),
         deadline:      dl,
