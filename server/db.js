@@ -48,7 +48,7 @@ function writeSync(db) {
 // ── Write lock — serializes all mutations ─────────────────────
 let _lock = Promise.resolve();
 function withLock(fn) {
-  const next = _lock.then(fn).catch(fn);
+  const next = _lock.then(fn);
   _lock = next.then(() => {}, () => {});
   return next;
 }
