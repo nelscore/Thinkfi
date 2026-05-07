@@ -5,7 +5,17 @@
  * Reads from State, calls API, updates DOM.
  * No data storage here — that belongs to api.js + server.
  */
-
+// Auto-open OTP step if redirected from welcome page
+window.addEventListener('DOMContentLoaded', () => {
+  if (new URLSearchParams(window.location.search).get('verify') === '1') {
+  const email = sessionStorage.getItem('pendingEmail') || '';
+    openLogin();
+    setTimeout(() => {
+      if (email) document.getElementById('lf-in').value = email;
+      ls(2);
+    }, 400);
+  }
+});
 // ── Constants ────────────────────────────────────────────
 
 const CATS = {
@@ -1824,13 +1834,17 @@ async function verifyOTP() {
   const name = getEl('lf-nm')?.value.trim() || '';
 
   try {
-    const result = await API.verifyOTPRequest(
-      _loginEmail,
-      code,
-      name,
-      _signupData.gender,
-      _signupData.birthDate,
-      _signupData.phone,
+   const email = document.getElementById('lf-in')?.value.trim();
+
+console.log('VERIFY EMAIL:', email);
+
+const result = await API.verifyOTPRequest(
+  email,
+  code,
+  name,
+  _signupData.gender,
+  _signupData.birthDate,
+  _signupData.phone,
     );
     const { token, user } = result;
 

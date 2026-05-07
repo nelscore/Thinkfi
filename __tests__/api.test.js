@@ -52,4 +52,29 @@ describe('API smoke tests', () => {
     const html = await res.text();
     expect(html).toContain('Welcome to ThinkFi');
   });
+
+}); // ✅ API smoke tests ends HERE
+
+// ✅ fmt() is now its own separate block, outside API tests
+describe('fmt() number formatter', () => {
+  const fmt = n => {
+    const sign = n < 0 ? '-' : '';
+    const abs  = Math.abs(n);
+    if (abs >= 10000000) return sign + '₹' + (abs / 10000000).toFixed(2) + 'Cr';
+    if (abs >= 100000)   return sign + '₹' + (abs / 100000).toFixed(1) + 'L';
+    if (abs >= 1000)     return sign + '₹' + (abs / 1000).toFixed(1) + 'K';
+    return sign + '₹' + abs.toLocaleString('en-IN');
+  };
+
+  it('formats negative large numbers correctly (regression: Bug 4)', () => {
+    expect(fmt(-150000)).toBe('-₹1.5L');
+    expect(fmt(-10000000)).toBe('-₹1.00Cr');
+    expect(fmt(-5000)).toBe('-₹5.0K');
+    expect(fmt(-500)).toBe('-₹500');
+  });
+
+  it('formats positive numbers correctly', () => {
+    expect(fmt(150000)).toBe('₹1.5L');
+    expect(fmt(5000)).toBe('₹5.0K');
+  });
 });

@@ -3,889 +3,477 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ThinkFi is a secure AI-powered personal finance dashboard for budgeting, goal planning, and money insights." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23002f39'/%3E%3Ctext x='50' y='66' text-anchor='middle' font-family='Plus Jakarta Sans, Arial, sans-serif' font-size='64' fill='%23ffffff'%3EF%3C/text%3E%3C/svg%3E" />
-  <title>Welcome to ThinkFi</title>
-  <link rel="stylesheet" href="css/main.css">
+  <meta name="description" content="ThinkFi is a secure AI-powered personal finance dashboard for budgeting, goal planning, and money insights.">
+  <title>ThinkFi — Control Your Money</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { overflow-x: hidden; perspective: 1000px; }
-    
-    .welcome-container {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #0f1419 0%, #1a2d35 50%, #213a44 100%);
-      position: relative;
-      overflow: hidden;
-      perspective: 1200px;
-    }
-
-    /* 3D Animated background elements */
-    .bg-blob {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.08;
-      mix-blend-mode: screen;
-      filter: blur(40px);
-      animation: subtleFloat3d 12s ease-in-out infinite;
-    }
-    .blob1 { width: 400px; height: 400px; background: #00d4c4; top: -100px; left: -100px; animation-delay: 0s; }
-    .blob2 { width: 300px; height: 300px; background: #7dd3c0; top: 50%; right: -50px; animation-delay: 4s; }
-    .blob3 { width: 350px; height: 350px; background: #1dddc4; bottom: -100px; left: 20%; animation-delay: 8s; }
-    @keyframes subtleFloat3d { 
-      0%, 100% { transform: translate(0, 0) rotateZ(0deg) scale(1); }
-      50% { transform: translate(30px, -30px) rotateZ(180deg) scale(0.95); }
-    }
-
-    .hero-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .welcome-logo {
-      font-size: 5rem;
-      margin-bottom: 1.5rem;
-      animation: gentleBounce 3s ease-in-out infinite;
-      text-shadow: 0 10px 30px rgba(0, 212, 255, 0.4), 0 20px 60px rgba(0, 212, 255, 0.2);
-      filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
-    }
-    @keyframes gentleBounce { 
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-12px) scale(1.02); }
-    }
-
-    .welcome-title {
-      font-size: 3.5rem;
-      font-weight: 900;
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, #00d4c4 0%, #1dddc4 50%, #7dd3c0 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1.2;
-      text-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
-      filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.15));
-      letter-spacing: -0.5px;
-    }
-
-    .welcome-subtitle {
-      font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.85);
-      margin-bottom: 2.5rem;
-      max-width: 550px;
-      line-height: 1.7;
-      font-weight: 400;
-      animation: fadeInUp 0.8s ease-out;
-      letter-spacing: 0.3px;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .trust-badges {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      margin-bottom: 3rem;
-      flex-wrap: wrap;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .badge {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      background: rgba(0, 212, 196, 0.1);
-      border: 2px solid rgba(0, 212, 196, 0.5);
-      border-radius: 50px;
-      font-size: 0.9rem;
-      color: #00d4c4;
-      font-weight: 600;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-    }
-    .badge:hover {
-      background: rgba(0, 212, 196, 0.2);
-      box-shadow: 0 8px 20px rgba(0, 212, 196, 0.25);
-      transform: translateY(-2px);
-    }
-
-    .welcome-cta {
-      display: flex;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 4rem;
-    }
-
-    .btn-welcome {
-      padding: 16px 40px;
-      border-radius: 12px;
-      font-weight: 700;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      font-size: 1.05rem;
-      min-width: 200px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-welcome::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      transition: left 0.3s ease;
-      z-index: -1;
-    }
-
-    .btn-welcome:hover::before {
-      left: 0;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #00d4c4 0%, #009999 100%);
-      color: #0f1419;
-      box-shadow: 0 8px 32px rgba(0, 212, 196, 0.3), inset 0 1px 0px rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 48px rgba(0, 212, 196, 0.5), inset 0 1px 0px rgba(255, 255, 255, 0.5);
-    }
-
-    .btn-primary:active {
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.6);
-      transform: translateY(-5px);
-    }
-
-    .welcome-features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.8rem;
-      margin: 3rem auto;
-      max-width: 1100px;
-      width: 100%;
-      padding: 0 20px;
-      position: relative;
-      z-index: 1;
-      perspective: 1000px;
-    }
-
-    .feature-card {
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(185, 129, 255, 0.05) 100%);
-      border: 2px solid rgba(0, 212, 255, 0.2);
-      border-radius: 20px;
-      padding: 2.5rem;
-      backdrop-filter: blur(20px);
-      transition: all 0.4s ease;
-      min-height: 220px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
-      transition: all 0.5s ease;
-    }
-
-    .feature-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-      border-radius: 20px;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      pointer-events: none;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 25px 60px rgba(0, 212, 255, 0.3);
-      border-color: rgba(0, 212, 255, 0.5);
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(185, 129, 255, 0.1) 100%);
-    }
-
-    .feature-card:hover::before {
-      top: -10%;
-      right: -10%;
-    }
-
-    .feature-card:hover::after {
-      opacity: 1;
-    }
-
-    .feature-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      animation: gentleFloat 4s ease-in-out infinite;
-      filter: drop-shadow(0 5px 15px rgba(0, 212, 255, 0.2));
-    }
-    @keyframes gentleFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
-    .feature-title {
-      font-size: 1.3rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-      color: #fff;
-    }
-
-    .feature-desc {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.75);
-      line-height: 1.8;
-    }
-
-    .stats-section {
-      margin: 4rem auto;
-      max-width: 1100px;
-      width: 100%;
-      padding: 0 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .about-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-      perspective: 1000px;
-    }
-
-    .stat-item {
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 232, 150, 0.08) 100%);
-      border: 2px solid rgba(0, 212, 255, 0.15);
-      border-radius: 18px;
-      padding: 2rem;
-      backdrop-filter: blur(15px);
-      text-align: center;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, rgba(00, 212, 255, 0.1), rgba(0, 232, 150, 0.1), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.5s ease;
-      z-index: 1;
-    }
-
-    .stat-item:hover::before {
-      transform: translateX(100%);
-    }
-
-    .stat-item:hover {
-      transform: translateY(-6px);
-      border-color: rgba(0, 212, 255, 0.4);
-      box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
-    }
-
-    .stat-number {
-      font-size: 2.8rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #00d4c4, #1dddc4);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.5rem;
-      position: relative;
-      z-index: 2;
-    }
-
-    .stat-label {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.75);
-      font-weight: 600;
-      position: relative;
-      z-index: 2;
-    }
-
-    .work-section {
-      margin: 4rem auto;
-      max-width: 1100px;
-      width: 100%;
-      padding: 0 20px;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .section-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      margin-bottom: 0.5rem;
-      color: #fff;
-      background: linear-gradient(135deg, #00d4c4, #1dddc4);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .section-subtitle {
-      font-size: 1.1rem;
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 2.5rem;
-    }
-
-    .work-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.8rem;
-      margin-top: 2rem;
-      perspective: 1000px;
-    }
-
-    .work-card {
-      background: linear-gradient(135deg, rgba(185, 129, 255, 0.1) 0%, rgba(0, 232, 150, 0.05) 100%);
-      border: 2px solid rgba(185, 129, 255, 0.2);
-      border-radius: 20px;
-      padding: 2rem;
-      text-align: left;
-      min-height: 240px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      backdrop-filter: blur(15px);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .work-card::before {
-      content: '';
-      position: absolute;
-      top: -100%;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, rgba(185, 129, 255, 0.2), transparent);
-      transition: top 0.4s ease;
-    }
-
-    .work-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 50px rgba(185, 129, 255, 0.25);
-      border-color: rgba(185, 129, 255, 0.5);
-      background: linear-gradient(135deg, rgba(185, 129, 255, 0.12) 0%, rgba(0, 232, 150, 0.07) 100%);
-    }
-
-    .work-card:hover::before {
-      top: 0;
-    }
-
-    .work-step {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(185, 129, 255, 0.25));
-      color: #00d4ff;
-      font-weight: 900;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 0.5rem;
-      border: 2px solid rgba(0, 212, 255, 0.3);
-      position: relative;
-      z-index: 10;
-      animation: subtlePulse 2.5s ease-in-out infinite;
-    }
-    @keyframes subtlePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.2); }
-      50% { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
-    }
-
-    .work-card h4 {
-      margin: 0;
-      font-size: 1.3rem;
-      color: #fff;
-      font-weight: 800;
-      position: relative;
-      z-index: 10;
-    }
-
-    .work-card p {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.78);
-      line-height: 1.8;
-      font-size: 1rem;
-      position: relative;
-      z-index: 10;
-    }
-
-    .auth-panel {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.8rem;
-      margin: 4rem auto;
-      max-width: 1100px;
-      width: 100%;
-      padding: 0 20px;
-      position: relative;
-      z-index: 1;
-      perspective: 1000px;
-    }
-
-    .auth-card {
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(0, 232, 150, 0.08) 100%);
-      border: 2px solid rgba(0, 212, 255, 0.25);
-      border-radius: 22px;
-      padding: 2.5rem;
-      backdrop-filter: blur(20px);
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .auth-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent);
-      transition: all 0.5s ease;
-    }
-
-    .auth-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 25px 70px rgba(0, 212, 255, 0.25);
-      border-color: rgba(0, 212, 255, 0.45);
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.16) 0%, rgba(0, 232, 150, 0.1) 100%);
-    }
-
-    .auth-card:hover::before {
-      top: -20%;
-      right: -20%;
-    }
-
-    .auth-card h3 {
-      margin: 0;
-      font-size: 1.4rem;
-      color: #fff;
-      font-weight: 800;
-    }
-
-    .auth-card p {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.76);
-      line-height: 1.7;
-      font-size: 0.95rem;
-    }
-
-    .ff {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .ff label {
-      font-size: 12px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.85);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .ff input,
-    .ff select {
-      background: rgba(0, 0, 0, 0.4);
-      border: 2px solid rgba(0, 212, 255, 0.25);
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: #fff;
-      font-size: 13px;
-      outline: none;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .ff input::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .ff input:focus,
-    .ff select:focus {
-      border-color: #00d4c4;
-      box-shadow: 0 0 0 3px rgba(0, 212, 196, 0.15), 0 8px 16px rgba(0, 212, 196, 0.12);
-      background: rgba(0, 0, 0, 0.6);
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 13px 24px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
-      outline: none;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .btn:hover::before {
-      opacity: 1;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #00d4c4, #009999);
-      color: #0f1419;
-      box-shadow: 0 8px 24px rgba(0, 212, 196, 0.3), 0 0 0 0 rgba(0, 212, 196, 0.1);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0, 212, 196, 0.4), 0 0 20px rgba(0, 212, 196, 0.2);
-    }
-
-    .btn-primary:active {
-      transform: translateY(-1px);
-    }
-
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      color: #fff;
-      box-shadow: inset 0 1px 0px rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1), inset 0 1px 0px rgba(255, 255, 255, 0.3);
-    }
-
-    .btn-full { width: 100%; }
-    .btn-sm { padding: 10px 18px; font-size: 12px; }
-
-    .auth-note {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.65);
-      font-style: italic;
-    }
-
-    @media (max-width: 768px) {
-      .welcome-title { font-size: 2.2rem; }
-      .welcome-subtitle { font-size: 1rem; max-width: none; }
-      .section-title { font-size: 1.8rem; }
-      .work-grid, .welcome-features { grid-template-columns: 1fr; }
-      .welcome-cta { flex-direction: column; }
-      .btn-welcome { width: 100%; }
-      .trust-badges { flex-direction: column; align-items: center; }
-      .feature-card:hover { transform: translateY(-8px); }
-      .work-card:hover { transform: translateY(-6px); }
-      .auth-card:hover { transform: translateY(-6px); }
-      .feature-icon { animation: gentleBounce 3s ease-in-out infinite; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#08070e;
+      --bg2:#0e0d1a;
+      --bg3:#131220;
+      --card:#111020;
+      --teal:#00d4c4;
+      --teal2:#00b8aa;
+      --border:rgba(0,212,196,0.15);
+      --border2:rgba(0,212,196,0.3);
+      --text:#ffffff;
+      --text2:rgba(255,255,255,0.65);
+      --text3:rgba(255,255,255,0.4);
+    }
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+ 
+    /* NAV */
+    nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(8,7,14,0.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+    .nav-logo{font-size:18px;font-weight:700;color:var(--text);letter-spacing:0.5px}
+    .nav-logo span{color:var(--teal)}
+    .nav-links{display:flex;gap:36px;align-items:center}
+    .nav-links a{font-size:13px;color:var(--text2);text-decoration:none;transition:color 0.2s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-sep{width:1px;height:14px;background:var(--text3)}
+    .nav-cta{padding:9px 22px;background:var(--teal);color:#08070e;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s}
+    .nav-cta:hover{background:var(--teal2)}
+    .nav-social{display:flex;flex-direction:column;gap:10px;position:fixed;left:20px;top:50%;transform:translateY(-50%);z-index:50}
+    .social-icon{width:34px;height:34px;border:1px solid var(--border2);border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.2s}
+    .social-icon:hover{border-color:var(--teal)}
+    .social-icon svg{width:14px;height:14px;fill:none;stroke:var(--text2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ 
+    /* HERO */
+    .hero{min-height:90vh;background:var(--bg);display:flex;align-items:center;padding:80px 80px 60px 80px;position:relative;overflow:hidden}
+    .hero-glow{position:absolute;top:-120px;left:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(0,212,196,0.07) 0%,transparent 70%);pointer-events:none}
+    .hero-glow2{position:absolute;bottom:-100px;right:0;width:400px;height:400px;background:radial-gradient(circle,rgba(0,212,196,0.05) 0%,transparent 70%);pointer-events:none}
+    .hero-left{flex:1;max-width:520px;position:relative;z-index:2}
+    .hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border:1px solid var(--border2);border-radius:50px;font-size:11px;color:var(--teal);margin-bottom:28px;letter-spacing:0.5px;text-transform:uppercase}
+    .tag-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+    .hero h1{font-size:58px;font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;color:var(--text)}
+    .hero h1 span{color:var(--teal)}
+    .hero-sub{font-size:15px;color:var(--text2);line-height:1.75;max-width:420px;margin-bottom:36px}
+    .hero-btns{display:flex;gap:14px;margin-bottom:52px}
+    .btn-primary{padding:14px 30px;background:var(--teal);color:#08070e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background 0.2s}
+    .btn-primary:hover{background:var(--teal2)}
+    .btn-ghost{padding:14px 30px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:border-color 0.2s}
+    .btn-ghost:hover{border-color:rgba(255,255,255,0.5)}
+    .hero-stats{display:flex;gap:36px}
+    .hstat-num{font-size:26px;font-weight:700;color:var(--teal)}
+    .hstat-lbl{font-size:12px;color:var(--text3);margin-top:2px}
+    .hero-right{flex:0 0 420px;position:relative;z-index:2;display:flex;align-items:center;justify-content:center}
+    .hero-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:360px}
+    .hcard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .hcard-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px}
+    .hcard-live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--teal)}
+    .live-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+    .hcard-bal{font-size:32px;font-weight:700;margin-bottom:4px}
+    .hcard-change{font-size:13px;color:var(--teal);margin-bottom:20px}
+    .hcard-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+    .bar-row{display:flex;align-items:center;gap:10px}
+    .bar-lbl{font-size:11px;color:var(--text3);width:64px;flex-shrink:0}
+    .bar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.06)}
+    .bar-fill{height:6px;border-radius:3px;background:var(--teal)}
+    .bar-val{font-size:11px;color:var(--text2);width:32px;text-align:right;flex-shrink:0}
+    .hcard-bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .hcard-mini{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px}
+    .hm-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
+    .hm-val{font-size:16px;font-weight:600;color:var(--text)}
+    .hm-tag{font-size:10px;margin-top:3px}
+    .up{color:#4ade80}.dn{color:#f87171}
+ 
+    /* BANNER */
+    .banner{margin:0 48px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;display:flex;align-items:center;justify-content:space-between;padding:28px 40px;overflow:hidden;position:relative}
+    .banner-glow{position:absolute;right:0;top:0;width:300px;height:100%;background:radial-gradient(ellipse at right,rgba(0,212,196,0.08) 0%,transparent 70%);pointer-events:none}
+    .banner-left .b-eyebrow{font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+    .banner-left h3{font-size:22px;font-weight:700;color:var(--text)}
+    .banner-pills{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:7px 16px;border:1px solid var(--border2);border-radius:50px;font-size:12px;color:var(--teal);background:rgba(0,212,196,0.06)}
+ 
+    /* FEATURES */
+    .features{padding:80px 48px}
+    .sec-tag{display:inline-block;padding:4px 14px;border:1px solid var(--border2);border-radius:50px;font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+    .sec-title{font-size:36px;font-weight:700;margin-bottom:10px;color:var(--text)}
+    .sec-sub{font-size:15px;color:var(--text2);max-width:460px;line-height:1.7;margin-bottom:48px}
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .feat-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px;transition:border-color 0.2s}
+    .feat-card:hover{border-color:var(--border2)}
+    .feat-icon{width:52px;height:52px;border-radius:14px;background:rgba(0,212,196,0.1);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+    .feat-icon svg{width:22px;height:22px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .feat-card h3{font-size:16px;font-weight:600;margin-bottom:10px;color:var(--text)}
+    .feat-card p{font-size:13px;color:var(--text2);line-height:1.7}
+ 
+    /* FUTURE */
+    .future{padding:60px 48px;display:flex;gap:60px;align-items:center}
+    .future-left{flex:1}
+    .future-left h2{font-size:38px;font-weight:700;margin-bottom:36px;line-height:1.2}
+    .fitem{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--border)}
+    .fitem:last-child{border-bottom:none}
+    .fcheck{width:28px;height:28px;border-radius:50%;background:rgba(0,212,196,0.12);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .fcheck svg{width:13px;height:13px;stroke:var(--teal);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .fitem h4{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+    .fitem p{font-size:13px;color:var(--text2);line-height:1.65}
+    .future-right{flex:0 0 380px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px}
+    .gov-item{display:flex;gap:16px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--border)}
+    .gov-item:last-child{border-bottom:none}
+    .gov-icon{width:46px;height:46px;border-radius:12px;background:rgba(0,212,196,0.1);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .gov-icon svg{width:20px;height:20px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .gov-name{font-size:14px;font-weight:600;margin-bottom:5px;color:var(--text)}
+    .gov-desc{font-size:12px;color:var(--text2);line-height:1.6}
+ 
+    /* HOW */
+    .how{padding:60px 48px;text-align:center}
+    .steps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
+    .step-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 20px;text-align:left;position:relative}
+    .step-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .step-num::before{content:'';display:block;width:6px;height:6px;border-radius:50%;background:var(--teal)}
+    .step-card h4{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)}
+    .step-card p{font-size:13px;color:var(--text2);line-height:1.65}
+ 
+    /* AUTH */
+    .auth{padding:60px 48px;display:flex;gap:32px;align-items:flex-start;justify-content:center}
+    .auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;flex:0 0 340px}
+    .auth-card h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)}
+    .auth-card > p{font-size:13px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
+    .field input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;outline:none;transition:border-color 0.2s}
+    .field input:focus{border-color:var(--teal)}
+    .field input::placeholder{color:var(--text3)}
+    .asubmit{width:100%;padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;transition:all 0.2s}
+    .asubmit.main{background:var(--teal);color:#08070e;border:none}
+    .asubmit.main:hover{background:var(--teal2)}
+    .asubmit.alt{background:transparent;border:1px solid var(--border2);color:var(--text)}
+    .asubmit.alt:hover{background:rgba(0,212,196,0.07)}
+    .anote{font-size:11px;color:var(--text3);margin-top:10px;text-align:center}
+ 
+    /* FOOTER */
+    footer{padding:40px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+    .footer-brand .fn{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+    .footer-brand .fn span{color:var(--teal)}
+    .footer-brand p{font-size:12px;color:var(--text3)}
+    .footer-links{display:flex;gap:28px;flex-wrap:wrap}
+    .footer-links a{font-size:12px;color:var(--text3);text-decoration:none;transition:color 0.2s}
+    .footer-links a:hover{color:var(--teal)}
+    .footer-social{display:flex;gap:10px}
+    .fsoc{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.2s}
+    .fsoc:hover{border-color:var(--teal)}
+    .fsoc svg{width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ 
+    /* RESPONSIVE */
+    @media(max-width:900px){
+      .hero{flex-direction:column;padding:60px 24px;gap:40px}
+      .hero-right{flex:unset;width:100%}
+      .hero-card{width:100%}
+      .feat-grid{grid-template-columns:1fr 1fr}
+      .future{flex-direction:column;padding:40px 24px}
+      .future-right{flex:unset;width:100%}
+      .steps-row{grid-template-columns:1fr 1fr}
+      .auth{flex-direction:column;align-items:center}
+      .auth-card{flex:unset;width:100%;max-width:400px}
+      .banner{flex-direction:column;gap:20px;margin:0 24px}
+      nav{padding:0 24px}
+      .features,.how{padding:60px 24px}
+      footer{padding:32px 24px}
+      .nav-social{display:none}
+    }
+    @media(max-width:560px){
+      .feat-grid{grid-template-columns:1fr}
+      .steps-row{grid-template-columns:1fr}
+      .hero h1{font-size:38px}
+      .hero-stats{flex-wrap:wrap;gap:20px}
+      .banner-pills{gap:8px}
     }
   </style>
 </head>
 <body>
-  <div class="welcome-container" id="welcome-container">
-    <div class="welcome-logo">💰</div>
-    <h1 class="welcome-title">Welcome to ThinkFi</h1>
-    <p class="welcome-subtitle">
-      Your AI-powered personal finance dashboard. Track expenses, set goals, and get smart insights to save smarter and live better.
-    </p>
-
-    <div class="welcome-features">
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Smart Analytics</div>
-        <div class="feature-desc">Get detailed insights into your spending patterns with AI-powered analysis.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">Goal Tracking</div>
-        <div class="feature-desc">Set and track financial goals with progress visualization and reminders.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🤖</div>
-        <div class="feature-title">AI Assistant</div>
-        <div class="feature-desc">Ask questions and get personalized financial advice from our AI assistant.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-title">Secure & Private</div>
-        <div class="feature-desc">Your data is encrypted and secure. We never share your personal information.</div>
-      </div>
+ 
+<!-- SOCIAL SIDEBAR -->
+<div class="nav-social">
+  <div class="social-icon"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></div>
+  <div class="social-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+  <div class="social-icon"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></div>
+  <div class="social-icon"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div>
+</div>
+ 
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Think<span>Fi</span></div>
+  <div class="nav-links">
+    <a href="#">Dashboard</a>
+    <div class="nav-sep"></div>
+    <a href="#">Features</a>
+    <div class="nav-sep"></div>
+    <a href="#">Goals</a>
+    <div class="nav-sep"></div>
+    <a href="#">AI Advisor</a>
+  </div>
+  <button class="nav-cta">Launch app</button>
+</nav>
+ 
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-left">
+    <div class="hero-tag"><span class="tag-dot"></span>AI-powered personal finance</div>
+    <h1>Control Your<br>Money. <span>Without<br>Guesswork.</span></h1>
+    <p class="hero-sub">Track spending, plan goals, and grow your finances with one intelligent system built for clarity and control.</p>
+    <div class="hero-btns">
+      <button class="btn-primary">Start for free →</button>
+      <button class="btn-ghost">Sign in</button>
     </div>
-
-    <!-- About Section -->
-    <div class="about-section">
-      <h2>About ThinkFi</h2>
-      <p>
-        ThinkFi is your AI-powered personal finance companion. Built with cutting-edge technology, it helps you track expenses, set goals,
-        and get smart insights into your financial health. Our secure platform protects your privacy while delivering personalized guidance.
-      </p>
-        <div class="about-stats">
-        <div class="stat-item">
-          <div class="stat-number">Secure by design</div>
-          <div class="stat-label">Privacy-first finance</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">Real-time insights</div>
-          <div class="stat-label">Budget, goals, and cashflow</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">AI-powered advice</div>
-          <div class="stat-label">Personalized money guidance</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="work-section">
-      <h2>How ThinkFi Works</h2>
-      <div class="work-grid">
-        <div class="work-card">
-          <div class="work-step">1</div>
-          <h4>Connect your financial picture</h4>
-          <p>Start by signing in or signing up with your email. ThinkFi will help you add transactions, budgets, and goals instantly.</p>
-        </div>
-        <div class="work-card">
-          <div class="work-step">2</div>
-          <h4>Track spending automatically</h4>
-          <p>Add expenses and incomes, then watch your dashboard update with smart analytics and category-level insights.</p>
-        </div>
-        <div class="work-card">
-          <div class="work-step">3</div>
-          <h4>Plan goals with confidence</h4>
-          <p>Create savings targets, monitor progress, and get reminders so you never lose sight of what matters most.</p>
-        </div>
-        <div class="work-card">
-          <div class="work-step">4</div>
-          <h4>Get AI-powered advice</h4>
-          <p>Ask ThinkFi questions about your money, budget smarter, and receive personalized tips tailored to your habits.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="welcome-cta">
-      <button class="btn-welcome btn-primary" onclick="LandingUI.openSignup()">Get Started Free →</button>
-      <button class="btn-welcome btn-secondary" onclick="LandingUI.openLogin()">Sign In</button>
-    </div>
-
-    <div class="auth-panel">
-      <div class="auth-card">
-        <h3>Sign In</h3>
-        <p>Enter your email to receive a secure one-time login code and access your ThinkFi account instantly.</p>
-        <div class="ff"><label>Email address</label><input type="email" id="page-signin-email" placeholder="you@example.com"/></div>
-        <button class="btn btn-primary btn-full" onclick="LandingUI.pageSignIn()">Send login code</button>
-        <div class="auth-note">No password needed. Secure OTP access with email verification.</div>
-      </div>
-      <div class="auth-card">
-        <h3>Create Account</h3>
-        <p>New here? Sign up with your email and get started with automatic budgeting, goal planning, and AI insights.</p>
-        <div class="ff"><label>Full name</label><input type="text" id="page-signup-name" placeholder="Your name"/></div>
-        <div class="ff"><label>Email address</label><input type="email" id="page-signup-email" placeholder="you@example.com"/></div>
-        <button class="btn btn-secondary btn-full" onclick="LandingUI.pageSignUp()">Create account</button>
-        <div class="auth-note">You’ll be guided through verification and account setup in one flow.</div>
-      </div>
+    <div class="hero-stats">
+      <div><div class="hstat-num">100%</div><div class="hstat-lbl">Secure by design</div></div>
+      <div><div class="hstat-num">Real-time</div><div class="hstat-lbl">Live insights</div></div>
+      <div><div class="hstat-num">AI-first</div><div class="hstat-lbl">Smart guidance</div></div>
     </div>
   </div>
-  <div id="toast-root"></div>
-
-  <script src="js/api.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/ui.js"></script>
-  <script>
-    window.LandingUI = (() => {
-      function openLogin() {
-        setAuthPurpose('signin');
-        setLoginEmail('');
-        setSignupData({});
-        document.getElementById('landing-ov-login').classList.add('open');
-        document.getElementById('landing-signup-fields').style.display = 'none';
-        document.getElementById('landing-auth-title').textContent = 'Welcome to ThinkFi';
-        document.getElementById('landing-auth-sub').textContent = 'Sign in to unlock all features';
-        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign In →';
-        ls(1);
-      }
-
-      function openSignup() {
-        setAuthPurpose('signup');
-        setLoginEmail('');
-        setSignupData({});
-        document.getElementById('landing-ov-login').classList.add('open');
-        document.getElementById('landing-signup-fields').style.display = 'block';
-        document.getElementById('landing-auth-title').textContent = 'Create Account';
-        document.getElementById('landing-auth-sub').textContent = 'Join ThinkFi and start your financial journey';
-        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign Up →';
-        ls(1);
-      }
-
-      function pageSignIn() {
-        const email = document.getElementById('page-signin-email').value.trim();
-        if (!email) { toast('Please enter your email to sign in.', 'e'); return; }
-        setAuthPurpose('signin');
-        setLoginEmail(email);
-        setSignupData({});
-        document.getElementById('landing-lf-in').value = email;
-        document.getElementById('landing-lf-nm').value = '';
-        document.getElementById('landing-signup-fields').style.display = 'none';
-        document.getElementById('landing-auth-title').textContent = 'Welcome to ThinkFi';
-        document.getElementById('landing-auth-sub').textContent = 'Sign in to unlock all features';
-        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign In →';
-        document.getElementById('landing-ov-login').classList.add('open');
-        ls(1);
-        sendOTP();
-      }
-
-      function pageSignUp() {
-        const name = document.getElementById('page-signup-name').value.trim();
-        const email = document.getElementById('page-signup-email').value.trim();
-        if (!name || !email) { toast('Please enter your name and email to create an account.', 'e'); return; }
-        setAuthPurpose('signup');
-        setLoginEmail(email);
-        setSignupData({ name });
-        document.getElementById('landing-lf-in').value = email;
-        document.getElementById('landing-lf-nm').value = name;
-        document.getElementById('landing-signup-fields').style.display = 'block';
-        document.getElementById('landing-auth-title').textContent = 'Create Account';
-        document.getElementById('landing-auth-sub').textContent = 'Join ThinkFi and start your financial journey';
-        document.getElementById('landing-verify-btn').textContent = 'Verify & Sign Up →';
-        document.getElementById('landing-ov-login').classList.add('open');
-        ls(1);
-        setTimeout(() => document.getElementById('landing-lf-gender').focus(), 50);
-      }
-
-      function closeLogin() { document.getElementById('landing-ov-login').classList.remove('open'); }
-
-      function setLM(type) {
-        const active = document.getElementById('lm-email');
-        if (active) active.classList.toggle('on', type === 'email');
-        const label = document.getElementById('landing-lf-lbl');
-        if (label) label.textContent = 'Email Address';
-      }
-
-      function ls(n) { [1, 2, 3].forEach(i => document.getElementById('landing-ls' + i).style.display = i === n ? 'block' : 'none'); }
-
-      return { openLogin, openSignup, pageSignIn, pageSignUp, closeLogin, setLM, ls };
-    })();
-  </script>
-
-  <!-- ══════════════════════ LOGIN MODAL ══════════════════════ -->
-
-<!-- LOGIN -->
-<div class="overlay" id="landing-ov-login">
-  <div class="popup" style="max-width:360px;">
-    <button class="pp-close" onclick="LandingUI.closeLogin()">✕</button>
-    <div id="landing-ls1">
-      <div style="text-align:center;margin-bottom:20px;"><div style="font-size:40px;margin-bottom:10px;">🔐</div><div class="pp-title" id="landing-auth-title">Welcome to ThinkFi</div><div class="pp-sub" id="landing-auth-sub" style="margin-bottom:0;">Sign in to unlock all features</div></div>
-      <div class="login-methods">
-        <button class="lm-btn on" id="lm-email" onclick="LandingUI.setLM('email')">📧 Email</button>
-      </div>
-      <div class="ff"><label id="landing-lf-lbl">Email Address</label><input type="text" id="landing-lf-in" placeholder="you@example.com"/></div>
-      <div class="ff"><label>Your Name <span style="color:var(--text2);">(optional)</span></label><input type="text" id="landing-lf-nm" placeholder="What should we call you?"/></div>
-      <div id="landing-signup-fields" style="display:none;">
-        <div class="ff"><label>Gender</label><select id="landing-lf-gender"><option value="">Select gender</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer not to say</option></select></div>
-        <div class="ff"><label>Date of Birth</label><input type="date" id="landing-lf-dob"/></div>
-        <div class="ff"><label>Phone Number</label><input type="text" id="landing-lf-phone" placeholder="+91 98765 43210"/></div>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="sendOTP()">Send Verification Code →</button>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="LandingUI.closeLogin()" style="margin-top:12px;">Cancel</button>
-      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text2);">No password needed · OTP verification</div>
+  <div class="hero-right">
+  </div>
+</div>
+ 
+<!-- BANNER -->
+<div class="banner">
+  <div class="banner-glow"></div>
+  <div class="banner-left">
+    <div class="b-eyebrow">ThinkFi — Powered by AI</div>
+    <h3>Smart Finance. Premier Budgeting &amp; Goal Planning.</h3>
+  </div>
+  <div class="banner-pills">
+    <div class="pill">Privacy-first</div>
+    <div class="pill">No bank links</div>
+    <div class="pill">OTP verified</div>
+    <div class="pill">Your data, yours</div>
+  </div>
+</div>
+ 
+<!-- FEATURES -->
+<div class="features">
+  <div class="sec-tag">Features</div>
+  <div class="sec-title">Everything to manage money well</div>
+  <div class="sec-sub">Four tools that work together so you never have to guess where your money went.</div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <h3>Multi-asset budgets</h3>
+      <p>Budget across multiple spending categories simultaneously with unified dashboards and real-time breakdowns.</p>
     </div>
-    <div id="landing-ls2" style="display:none;">
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="font-size:36px;margin-bottom:8px;">📨</div>
-        <div class="pp-title">Check your inbox</div>
-        <div class="pp-sub" style="margin-bottom:0;">We sent a 6-digit code to <span id="landing-otp-to" style="color:var(--c1);font-weight:700;"></span></div>
-      </div>
-      <!-- Real 6-digit OTP inputs -->
-      <div class="otp-grid" style="grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;">
-        <input class="otp-in" maxlength="1" id="landing-o0" oninput="onOTP(0)" onkeydown="onOTPBack(event,0)" type="text" inputmode="numeric" pattern="[0-9]"/>
-        <input class="otp-in" maxlength="1" id="landing-o1" oninput="onOTP(1)" onkeydown="onOTPBack(event,1)" type="text" inputmode="numeric" pattern="[0-9]"/>
-        <input class="otp-in" maxlength="1" id="landing-o2" oninput="onOTP(2)" onkeydown="onOTPBack(event,2)" type="text" inputmode="numeric" pattern="[0-9]"/>
-        <input class="otp-in" maxlength="1" id="landing-o3" oninput="onOTP(3)" onkeydown="onOTPBack(event,3)" type="text" inputmode="numeric" pattern="[0-9]"/>
-        <input class="otp-in" maxlength="1" id="landing-o4" oninput="onOTP(4)" onkeydown="onOTPBack(event,4)" type="text" inputmode="numeric" pattern="[0-9]"/>
-        <input class="otp-in" maxlength="1" id="landing-o5" oninput="onOTP(5)" onkeydown="onOTPBack(event,5)" type="text" inputmode="numeric" pattern="[0-9]"/>
-      </div>
-      <div id="landing-otp-error" style="display:none;color:var(--red);font-size:12px;text-align:center;margin-bottom:10px;"></div>
-      <button class="btn btn-primary btn-full" id="landing-verify-btn" onclick="verifyOTP()">Verify & Sign In →</button>
-      <div style="display:flex;justify-content:space-between;margin-top:12px;">
-        <button class="btn btn-ghost btn-sm" onclick="LandingUI.ls(1)">← Back</button>
-        <button class="btn btn-ghost btn-sm" id="landing-resend-btn" onclick="resendOTP()">Resend code</button>
-      </div>
-      <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text2);">Code expires in 10 minutes</div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>Secure by design</h3>
+      <p>Security-first architecture with OTP-based access means your financial data is always protected and never sold.</p>
     </div>
-    <div id="landing-ls3" style="display:none;">
-      <div class="congrats-wrap">
-        <span class="cg-emoji">🎉</span>
-        <div class="cg-title">You're all set!</div>
-        <div class="cg-sub">Full access unlocked. Welcome to ThinkFi!</div>
-        <div class="unlock-chips">
-          <span class="uc">✅ Save Data</span><span class="uc">✅ Full AI</span>
-          <span class="uc">✅ Analytics</span><span class="uc">✅ History</span><span class="uc">✅ Export</span>
-        </div>
-        <button class="btn btn-primary" onclick="finishLogin()" style="width:200px;">Start Using ThinkFi →</button>
-      </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <h3>Real-time insights</h3>
+      <p>Watch your dashboard update live as you add transactions, with smart category-level analytics at every step.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <h3>AI advisor</h3>
+      <p>Ask anything about your money and get instant personalized insights backed by your actual spending data.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <h3>Goal tracking</h3>
+      <p>Set savings targets, monitor progress, and receive reminders so you never lose sight of what matters most.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <h3>Cashflow clarity</h3>
+      <p>Understand your income vs expenses at a glance with monthly trends and net cashflow projections.</p>
     </div>
   </div>
-</div></body>
+</div>
+ 
+<!-- FUTURE + GOVERNANCE -->
+<div class="future">
+  <div class="future-left">
+    <h2>The Future of<br>Personal Finance</h2>
+    <div class="fitem">
+      <div class="fcheck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><h4>Data-driven decisions</h4><p>Every suggestion ThinkFi makes is backed by your real spending patterns — not generic advice.</p></div>
+    </div>
+    <div class="fitem">
+      <div class="fcheck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><h4>Functionality built for users</h4><p>Clean, intuitive workflows that make budgeting feel effortless, not like a chore.</p></div>
+    </div>
+    <div class="fitem">
+      <div class="fcheck"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><h4>Latest AI technology</h4><p>Powered by cutting-edge AI that learns your habits and adapts its guidance over time.</p></div>
+    </div>
+  </div>
+  <div class="future-right">
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Governance</div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:20px">Definition &amp; Importance</div>
+    <div class="gov-item">
+      <div class="gov-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><div class="gov-name">Your data</div><div class="gov-desc">Your financial records are stored only for your use. ThinkFi never sells, shares, or monetizes your data.</div></div>
+    </div>
+    <div class="gov-item">
+      <div class="gov-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div><div class="gov-name">Community</div><div class="gov-desc">Built around user feedback. Every feature ships based on what real users ask for.</div></div>
+    </div>
+    <div class="gov-item">
+      <div class="gov-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><div class="gov-name">Foundation</div><div class="gov-desc">Security-first infrastructure underpins every transaction, login, and data point in ThinkFi.</div></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- HOW IT WORKS -->
+<div class="how">
+  <div class="sec-tag">How it works</div>
+  <div class="sec-title">Up and running in minutes</div>
+  <div class="steps-row">
+    <div class="step-card">
+      <div class="step-num">Step 01</div>
+      <h4>Create your account</h4>
+      <p>Sign up with just your email — no password, no bank linking needed.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 02</div>
+      <h4>Add transactions</h4>
+      <p>Log expenses and income. Your dashboard updates with smart analytics instantly.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 03</div>
+      <h4>Set your goals</h4>
+      <p>Create savings targets and track progress toward what matters most to you.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 04</div>
+      <h4>Ask the AI</h4>
+      <p>Get personalized tips tailored to your actual spending habits — anytime.</p>
+    </div>
+  </div>
+</div>
+ 
+<!-- AUTH -->
+<div class="auth">
+
+  <!-- PRIMARY (SIGN IN) -->
+  <div class="auth-card primary">
+    <h3>Welcome back</h3>
+    <p>Enter your email and get instant access with a secure login code.</p>
+
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" placeholder="you@example.com"/>
+    </div>
+
+    <button class="asubmit main">Send login code →</button>
+    <div class="anote">No password · OTP secure</div>
+  </div>
+
+  <!-- SECONDARY (SIGN UP) -->
+  <div class="auth-card secondary">
+    <h3>New here?</h3>
+    <p>Create your account and start managing your money smarter.</p>
+
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" placeholder="Your name"/>
+    </div>
+
+    <div class="field">
+      <label>Email address</label>
+      <input type="email" placeholder="you@example.com"/>
+    </div>
+
+    <button class="asubmit alt">Create free account →</button>
+    <div class="anote">Takes less than 2 minutes</div>
+  </div>
+
+</div>
+ 
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="fn">Think<span>Fi</span></div>
+    <p>© 2025 ThinkFi. All rights reserved.</p>
+  </div>
+  <div class="footer-links">
+    <a href="#">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Services</a>
+    <a href="#">Privacy &amp; Policy</a>
+    <a href="#">Terms of Use</a>
+  </div>
+  <div class="footer-social">
+    <div class="fsoc"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div>
+    <div class="fsoc"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+    <div class="fsoc"><svg viewBox="0 0 24 24"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/></svg></div>
+    <div class="fsoc"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></div>
+  </div>
+</footer>
+<script>
+  // Scroll to auth section
+  function scrollToAuth() {
+    document.querySelector('.auth').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Nav buttons
+  document.querySelector('.nav-cta').onclick = scrollToAuth;
+
+  // Hero buttons
+  const heroBtns = document.querySelectorAll('.hero-btns button');
+  heroBtns[0].onclick = scrollToAuth;  // "Start for free"
+  heroBtns[1].onclick = scrollToAuth;  // "Sign in"
+
+  // Send login code button
+  document.querySelector('.auth-card.primary .asubmit.main').onclick = async function () {
+    const email = document.querySelector('.auth-card.primary input[type="email"]').value.trim();
+    if (!email || !email.includes('@')) {
+      return alert('Please enter a valid email address.');
+    }
+    this.disabled = true;
+    this.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Check your console for the OTP code.');
+       sessionStorage.setItem('pendingEmail', email);
+       sessionStorage.setItem('pendingName', (typeof name !== 'undefined') ? name : '');
+       window.location.href = '/index.html?verify=1';
+      } else {
+        alert(data.error || 'Something went wrong.');
+      }
+    } catch (e) {
+      alert('Server error. Is the server running?');
+    }
+    this.disabled = false;
+    this.textContent = 'Send login code →';
+  };
+
+  // Create free account button
+  document.querySelector('.auth-card.secondary .asubmit.alt').onclick = async function () {
+    const name  = document.querySelector('.auth-card.secondary input[type="text"]').value.trim();
+    const email = document.querySelector('.auth-card.secondary input[type="email"]').value.trim();
+    if (!name)  return alert('Please enter your name.');
+    if (!email || !email.includes('@')) return alert('Please enter a valid email.');
+    this.disabled = true;
+    this.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message || 'Check your console for the OTP code.');
+        window.location.href = '/';
+      } else {
+        alert(data.error || 'Something went wrong.');
+      }
+    } catch (e) {
+      alert('Server error. Is the server running?');
+    }
+    this.disabled = false;
+    this.textContent = 'Create free account →';
+  };
+</script>
+ 
+</body>
 </html>
