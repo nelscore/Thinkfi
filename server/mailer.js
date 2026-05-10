@@ -33,7 +33,7 @@ function otpEmailHTML(code) {
 
 async function sendOTP(to, code) {
   const response = await resend.emails.send({
-    from: 'ThinkFi <onboarding@resend.dev>',
+    from: 'onboarding@resend.dev',
     to,
     subject: `${code} - ThinkFi Verification Code`,
     html: otpEmailHTML(code),
